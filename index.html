@@ -1029,13 +1029,42 @@ function speak(text, onEnd, isRepeat = false) {
   utter.rate = rate;
   utter.pitch = pitch;
 
-  // Add slight articulation pause: insert commas for clarity
-  // We'll use a slower rate for chunks to improve clarity
-  if (useChunks) utter.rate = rate * 0.95; // slightly slower for chunk reading
+  if (useChunks) utter.rate = rate * 0.95;
 
-  utter.onend = onEnd;
-  utter.onerror = (e) => { if (e.error !== 'canceled' && e.error !== 'interrupted') onEnd && onEnd(); };
+  // iOS Keep-alive: Safari sometimes pauses speech if it thinks the tab is idle.
+  // We periodically call resume() while speaking.
+  const resumeInterval = setInterval(() => {
+    if (synth.speaking) {
+      synth.pause();
+      synth.resume();
+    }
+  }, 5000);
+
+  utter.onend = () => {
+    clearInterval(resumeInterval);
+    if (onEnd) onEnd();
+  };
+  
+  utter.onerror = (e) => {
+    clearInterval(resumeInterval);
+    console.error('Speech error:', e);
+    if (e.error !== 'canceled' && e.error !== 'interrupted') {
+      if (onEnd) onEnd();
+    }
+  };
+
   synth.speak(utter);
+  
+  // iOS Safari 15+ fix: Sometimes the 'onend' doesn't fire for very short chunks.
+  // We add a safety timeout based on the text length and rate.
+  const estimatedMs = (text.length / (rate * 0.5)) * 100 + 1000;
+  setTimeout(() => {
+    if (synth.speaking && utter.onend) {
+      // If it's still "speaking" but likely stuck
+      // utter.onend(); // Don't force it yet, but keep in mind
+    }
+  }, estimatedMs);
+
   return utter;
 }
 
@@ -1159,13 +1188,20 @@ document.getElementById('btnPlay').addEventListener('click', async () => {
   if (isPlaying) {
     stopAll();
   } else {
-    // iOS SILENT UNLOCK: Speak a tiny empty string immediately on user click
-    // to "unlock" the speech engine for Safari.
+    // iOS GESTURE UNLOCK: All iOS browsers (Chrome/Brave/Safari) use WebKit.
+    // They REQUIRE a speech command to be fired directly in the click handler.
     try {
-      const unlock = new SpeechSynthesisUtterance('');
+      synth.cancel(); // Clear any hung speech
+      const unlock = new SpeechSynthesisUtterance(" ");
       unlock.volume = 0;
       synth.speak(unlock);
-    } catch(e) {}
+      
+      // Also resume AudioContext if it's suspended
+      if (window.AudioContext || window.webkitAudioContext) {
+        const tempCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (tempCtx.state === 'suspended') tempCtx.resume();
+      }
+    } catch(e) { console.error('Unlock error:', e); }
     
     runDictation();
   }
