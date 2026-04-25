@@ -1155,8 +1155,20 @@ function setBtns(playing) {
   });
 }
 
-document.getElementById('btnPlay').addEventListener('click', () => {
-  if (isPlaying) stopAll(); else runDictation();
+document.getElementById('btnPlay').addEventListener('click', async () => {
+  if (isPlaying) {
+    stopAll();
+  } else {
+    // iOS SILENT UNLOCK: Speak a tiny empty string immediately on user click
+    // to "unlock" the speech engine for Safari.
+    try {
+      const unlock = new SpeechSynthesisUtterance('');
+      unlock.volume = 0;
+      synth.speak(unlock);
+    } catch(e) {}
+    
+    runDictation();
+  }
 });
 
 document.getElementById('btnPause').addEventListener('click', () => {
@@ -1504,11 +1516,12 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
   });
 });
 
-// ── Patch runDictation to use countdown, sound, counter, repeat count & timer ──
-const _origRun = runDictation;
-runDictation = async function() {
+// ── Main Dictation Logic ────────────────────────────────────────────────────────
+async function runDictation() {
   const text = document.getElementById('textInput').value.trim();
   if (!text) { toast('⚠️ Enter some text first!'); return; }
+  
+  // Show countdown
   await runCountdown();
   sessionStart = Date.now();
   synth.cancel();
