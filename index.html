@@ -829,9 +829,6 @@ The AI will dictate it — reading every 5 words, then repeating them, so you ca
   </div>
 </div>
 
-<!-- COUNTDOWN OVERLAY -->
-<div id="countdown"><div class="cd-num" id="cdNum">3</div></div>
-
 <!-- STATS MODAL -->
 <div id="statsModal">
   <div class="stats-card">
@@ -1387,22 +1384,6 @@ document.addEventListener('keydown', e => {
 
 updateStats();
 
-// ── FEATURE 9: Countdown Timer ────────────────────────────────────────────────────
-async function runCountdown() {
-  const overlay = document.getElementById('countdown');
-  const num = document.getElementById('cdNum');
-  overlay.classList.add('on');
-  for (let i = 3; i >= 1; i--) {
-    num.textContent = i;
-    num.style.animation = 'none'; num.offsetHeight; num.style.animation = '';
-    await sleep(900);
-  }
-  num.textContent = '▶';
-  num.style.animation = 'none'; num.offsetHeight; num.style.animation = '';
-  await sleep(500);
-  overlay.classList.remove('on');
-}
-
 // ── FEATURE 3: Save & Resume Session ──────────────────────────────────────────
 function saveSession() {
   if (!isPlaying) return;
@@ -1557,8 +1538,6 @@ async function runDictation() {
   const text = document.getElementById('textInput').value.trim();
   if (!text) { toast('⚠️ Enter some text first!'); return; }
   
-  // Show countdown
-  await runCountdown();
   sessionStart = Date.now();
   synth.cancel();
   isPlaying = true; isPaused = false;
