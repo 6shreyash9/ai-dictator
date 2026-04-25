@@ -457,20 +457,20 @@
     }
     #chunkBanner.pop { opacity: 1; transform: translateX(-50%) scale(1); }
 
-    /* ── COUNTDOWN OVERLAY ── */
-    #countdown {
-      position: fixed; inset: 0; background: rgba(11,10,9,0.92);
+    /* ── START ANIMATION ── */
+    #startAnim {
+      position: fixed; inset: 0; background: rgba(11,10,9,0.85);
       display: none; place-items: center; z-index: 200;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(5px);
     }
-    #countdown.on { display: grid; }
-    .cd-num {
+    #startAnim.on { display: grid; }
+    .sa-text {
       font-family: var(--font-display);
-      font-size: clamp(80px,20vw,180px); font-weight: 900;
-      color: var(--accent); line-height: 1;
-      animation: cdPop 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+      font-size: clamp(60px,15vw,120px); font-weight: 900;
+      color: var(--accent);
+      animation: saPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
     }
-    @keyframes cdPop { from{transform:scale(0.4);opacity:0} to{transform:scale(1);opacity:1} }
+    @keyframes saPop { from{transform:scale(0.5);opacity:0} to{transform:scale(1.1);opacity:1} }
 
     /* ── STATS MODAL ── */
     #statsModal {
@@ -828,6 +828,9 @@ The AI will dictate it — reading every 5 words, then repeating them, so you ca
 
   </div>
 </div>
+
+<!-- START ANIMATION OVERLAY -->
+<div id="startAnim"><div class="sa-text" id="saText">Start!</div></div>
 
 <!-- STATS MODAL -->
 <div id="statsModal">
@@ -1384,6 +1387,14 @@ document.addEventListener('keydown', e => {
 
 updateStats();
 
+// ── Start Animation ───────────────────────────────────────────────────────────
+async function runStartAnim() {
+  const overlay = document.getElementById('startAnim');
+  overlay.classList.add('on');
+  await sleep(1000);
+  overlay.classList.remove('on');
+}
+
 // ── FEATURE 3: Save & Resume Session ──────────────────────────────────────────
 function saveSession() {
   if (!isPlaying) return;
@@ -1537,6 +1548,9 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
 async function runDictation() {
   const text = document.getElementById('textInput').value.trim();
   if (!text) { toast('⚠️ Enter some text first!'); return; }
+  
+  // 1-second start animation
+  await runStartAnim();
   
   sessionStart = Date.now();
   synth.cancel();
