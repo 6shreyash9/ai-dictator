@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Dictator – Smart Notes Dictation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Syne:wght@400..800&display=swap" rel="stylesheet">
-  <!-- PDF.js for PDF parsing -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Syne:wght@400..800&display=swap"
+    rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
   <style>
     :root {
       --bg: #0b0a09;
@@ -22,17 +26,22 @@
       --text-muted: #8a857a;
       --text-faint: #3d3b35;
       --accent: #f0a500;
-      --accent-dim: rgba(240,165,0,0.12);
-      --accent-glow: rgba(240,165,0,0.25);
+      --accent-dim: rgba(240, 165, 0, 0.12);
+      --accent-glow: rgba(240, 165, 0, 0.25);
       --accent-hover: #ffb820;
       --success: #52c472;
       --danger: #e05555;
-      --danger-dim: rgba(224,85,85,0.15);
-      --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-full: 9999px;
-      --ease: cubic-bezier(0.16,1,0.3,1);
+      --danger-dim: rgba(224, 85, 85, 0.15);
+      --r-sm: 6px;
+      --r-md: 10px;
+      --r-lg: 14px;
+      --r-xl: 20px;
+      --r-full: 9999px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
       --font-ui: 'Inter', system-ui, sans-serif;
       --font-display: 'Syne', system-ui, sans-serif;
     }
+
     [data-theme="light"] {
       --bg: #f5f3ee;
       --surface: #faf8f4;
@@ -45,13 +54,24 @@
       --text-muted: #6b6660;
       --text-faint: #c0bbb4;
       --accent: #c07800;
-      --accent-dim: rgba(192,120,0,0.1);
-      --accent-glow: rgba(192,120,0,0.2);
+      --accent-dim: rgba(192, 120, 0, 0.1);
+      --accent-glow: rgba(192, 120, 0, 0.2);
       --accent-hover: #a86500;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family: var(--font-ui);
       font-size: 16px;
@@ -63,54 +83,122 @@
       height: 100dvh;
       overflow: hidden;
     }
-    button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
-    select, textarea, input { font: inherit; color: inherit; }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 99px; }
 
-    /* ── HEADER ── */
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      font: inherit;
+      color: inherit;
+    }
+
+    select,
+    textarea,
+    input {
+      font: inherit;
+      color: inherit;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--surface-4);
+      border-radius: 99px;
+    }
+
+    /* HEADER */
     .header {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 0 24px;
       border-bottom: 1px solid var(--border-soft);
       background: var(--surface);
       z-index: 100;
     }
-    .logo { display: flex; align-items: center; gap: 12px; }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .logo-mark {
-      width: 40px; height: 40px; border-radius: var(--r-md);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-md);
       background: var(--accent);
-      display: grid; place-items: center; color: #0b0a09;
+      display: grid;
+      place-items: center;
+      color: #0b0a09;
       flex-shrink: 0;
       transition: transform 200ms var(--ease);
     }
-    .logo:hover .logo-mark { transform: scale(1.05) rotate(5deg); }
-    .logo-mark svg { width: 22px; height: 22px; }
+
+    .logo:hover .logo-mark {
+      transform: scale(1.05) rotate(5deg);
+    }
+
+    .logo-mark svg {
+      width: 22px;
+      height: 22px;
+    }
+
     .logo-name {
       font-family: var(--font-display);
-      font-size: 22px; font-weight: 800;
+      font-size: 22px;
+      font-weight: 800;
       letter-spacing: -0.02em;
     }
-    .logo-name em { color: var(--accent); font-style: normal; }
+
+    .logo-name em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
     .logo-tag {
-      font-size: 13px; color: var(--text-muted);
+      font-size: 13px;
+      color: var(--text-muted);
       background: var(--surface-3);
-      padding: 4px 10px; border-radius: var(--r-full);
+      padding: 4px 10px;
+      border-radius: var(--r-full);
       border: 1px solid var(--border);
       font-weight: 600;
     }
-    .hdr-right { display: flex; gap: 8px; align-items: center; }
+
+    .hdr-right {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
     .icon-btn {
-      width: 40px; height: 40px; border-radius: var(--r-md);
-      display: grid; place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-md);
+      display: grid;
+      place-items: center;
       color: var(--text-muted);
       transition: all 200ms var(--ease);
     }
-    .icon-btn:hover { background: var(--surface-3); color: var(--text); transform: scale(1.05); }
-    .icon-btn:active { transform: scale(0.95); }
 
-    /* ── LAYOUT ── */
+    .icon-btn:hover {
+      background: var(--surface-3);
+      color: var(--text);
+      transform: scale(1.05);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* LAYOUT */
     .workspace {
       display: grid;
       grid-template-columns: 1fr 420px;
@@ -118,62 +206,132 @@
       height: 100%;
     }
 
-    /* ── LEFT PANEL ── */
+    /* LEFT PANEL */
     .left-panel {
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
       border-right: 1px solid var(--border-soft);
       overflow: hidden;
       position: relative;
     }
 
     .input-toolbar {
-      display: flex; align-items: center; gap: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       padding: 12px 20px;
       border-bottom: 1px solid var(--border-soft);
       background: var(--surface);
       overflow-x: auto;
     }
-    .tb-label { font-size: 13px; color: var(--text-faint); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-right: 6px; }
+
+    .tb-label {
+      font-size: 13px;
+      color: var(--text-faint);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-right: 6px;
+    }
+
     .tb-btn {
-      display: flex; align-items: center; gap: 6px;
-      padding: 6px 14px; border-radius: var(--r-full);
-      font-size: 14px; font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--r-full);
+      font-size: 14px;
+      font-weight: 600;
       color: var(--text-muted);
       background: var(--surface-3);
       border: 1px solid var(--border);
       transition: all 200ms var(--ease);
       white-space: nowrap;
     }
-    .tb-btn:hover { background: var(--surface-4); color: var(--text); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .tb-btn:active { transform: translateY(1px); box-shadow: none; }
-    .tb-btn svg { flex-shrink: 0; width: 14px; height: 14px; }
+
+    .tb-btn:hover {
+      background: var(--surface-4);
+      color: var(--text);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .tb-btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .tb-btn svg {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+    }
 
     .text-zone {
-      flex: 1; position: relative; overflow: hidden;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
     }
+
     #textInput {
-      width: 100%; height: 100%;
-      background: transparent; border: none; outline: none; resize: none;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
       padding: 32px;
-      font-size: 18px; line-height: 1.7;
+      font-size: 18px;
+      line-height: 1.7;
       color: var(--text);
     }
-    #textInput::placeholder { color: var(--text-faint); }
 
-    /* ── DICTATION DISPLAY ── */
-    #dictDisplay {
-      display: none; position: absolute; inset: 0;
-      padding: 32px; overflow-y: auto;
-      font-size: 22px; line-height: 2.2;
+    #textInput::placeholder {
+      color: var(--text-faint);
     }
-    #dictDisplay.on { display: block; }
+
+    /* DICTATION DISPLAY — paragraph-aware */
+    #dictDisplay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      padding: 32px;
+      overflow-y: auto;
+      font-size: 20px;
+      line-height: 1.9;
+    }
+
+    #dictDisplay.on {
+      display: block;
+    }
+
+    /* paragraph blocks inside dictDisplay */
+    .dict-para {
+      display: block;
+      margin-bottom: 1.4em;
+    }
+
+    .dict-para:last-child {
+      margin-bottom: 0;
+    }
 
     .w {
       display: inline;
-      padding: 2px 4px; border-radius: 6px;
+      padding: 2px 4px;
+      border-radius: 6px;
       transition: all 0.15s;
+      cursor: pointer;
+      user-select: none;
     }
-    .w.done { color: var(--text-muted); }
+
+    .w:hover {
+      background: var(--surface-4);
+    }
+
+    .w.done {
+      color: var(--text-muted);
+    }
+
     .w.now {
       background: var(--accent-dim);
       color: var(--accent);
@@ -181,49 +339,116 @@
       border-radius: 6px;
     }
 
-    /* chunk separator */
+    .w.repeat-now {
+      background: rgba(240, 165, 0, 0.28);
+      color: var(--accent);
+      font-weight: 700;
+      border-radius: 6px;
+      outline: 2px solid var(--accent);
+    }
+
+    .w.start-here {
+      background: rgba(82, 196, 114, 0.18);
+      color: var(--success);
+      font-weight: 700;
+      border-radius: 6px;
+      outline: 2px dashed var(--success);
+    }
+
+    /* click-to-start tooltip hint */
+    .w-hint {
+      position: fixed;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      pointer-events: none;
+      z-index: 300;
+      opacity: 0;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .w-hint.show {
+      opacity: 1;
+    }
+
     .chunk-sep {
       display: inline-block;
-      width: 8px; height: 8px; border-radius: 50%;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
       background: var(--accent);
       opacity: 0.25;
       margin: 0 6px 3px;
       vertical-align: middle;
       transition: all 0.2s;
     }
-    .chunk-sep.active { opacity: 1; transform: scale(1.6); box-shadow: 0 0 8px var(--accent-glow); }
+
+    .chunk-sep.active {
+      opacity: 1;
+      transform: scale(1.6);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
 
     /* drop zone */
     .drop-overlay {
-      position: absolute; inset: 16px;
+      position: absolute;
+      inset: 16px;
       background: var(--accent-dim);
       border: 3px dashed var(--accent);
       border-radius: var(--r-lg);
-      display: none; place-items: center;
-      flex-direction: column; gap: 12px;
-      z-index: 5; pointer-events: none;
+      display: none;
+      place-items: center;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 5;
+      pointer-events: none;
       backdrop-filter: blur(4px);
     }
-    .drop-overlay.on { display: grid; }
-    .drop-overlay p { font-size: 16px; font-weight: 700; color: var(--accent); }
-    .drop-overlay svg { width: 40px; height: 40px; }
 
-    /* ── RIGHT PANEL ── */
+    .drop-overlay.on {
+      display: grid;
+    }
+
+    .drop-overlay p {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .drop-overlay svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    /* RIGHT PANEL */
     .right-panel {
       overflow-y: auto;
       background: var(--surface);
-      display: flex; flex-direction: column; gap: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
     }
 
     .rpanel-section {
       padding: 24px 28px;
       border-bottom: 1px solid var(--border-soft);
     }
-    .rpanel-section:last-child { border-bottom: none; }
+
+    .rpanel-section:last-child {
+      border-bottom: none;
+    }
 
     .sec-title {
-      font-size: 13px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: 0.08em;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--text-faint);
       margin-bottom: 16px;
     }
@@ -233,65 +458,158 @@
       width: 100%;
       padding: 18px;
       border-radius: var(--r-xl);
-      font-size: 16px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       background: var(--accent);
       color: #0b0a09;
       transition: all 200ms var(--ease);
       box-shadow: 0 0 0 0 var(--accent-glow);
       letter-spacing: 0.02em;
     }
-    .btn-main:hover { background: var(--accent-hover); box-shadow: 0 8px 30px var(--accent-glow); transform: translateY(-2px); }
-    .btn-main:active { transform: translateY(1px); box-shadow: 0 2px 10px var(--accent-glow); }
-    .btn-main svg { width: 20px; height: 20px; }
-    .btn-main.stop-mode { background: var(--surface-3); color: var(--danger); border: 1px solid var(--danger); box-shadow: none; }
-    .btn-main.stop-mode:hover { background: var(--danger-dim); }
 
-    /* 2-col controls */
-    .ctrl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn-main:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 8px 30px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-main:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    .btn-main svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .btn-main.stop-mode {
+      background: var(--surface-3);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      box-shadow: none;
+    }
+
+    .btn-main.stop-mode:hover {
+      background: var(--danger-dim);
+    }
+
+    .ctrl-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
     .btn-sec {
       padding: 14px 10px;
       border-radius: var(--r-lg);
       border: 1px solid var(--border);
       background: var(--surface-3);
-      font-size: 14px; font-weight: 700;
+      font-size: 14px;
+      font-weight: 700;
       color: var(--text-muted);
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       transition: all 200ms var(--ease);
     }
-    .btn-sec svg { width: 16px; height: 16px; }
-    .btn-sec:hover:not(:disabled) { background: var(--surface-4); color: var(--text); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .btn-sec:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
-    .btn-sec:disabled { opacity: 0.4; pointer-events: none; }
-    .btn-sec.accent-mode { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
 
-    /* Status pill */
+    .btn-sec svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-sec:hover:not(:disabled) {
+      background: var(--surface-4);
+      color: var(--text);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-sec:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn-sec:disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .btn-sec.accent-mode {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
     .status-pill {
-      display: flex; align-items: center; gap: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       padding: 12px 16px;
       background: var(--surface-3);
       border-radius: var(--r-xl);
       border: 1px solid var(--border);
-      font-size: 14px; font-weight: 600;
+      font-size: 14px;
+      font-weight: 600;
       color: var(--text-muted);
     }
+
     .dot {
-      width: 10px; height: 10px; border-radius: 50%;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
       background: var(--text-faint);
       transition: background 0.2s;
       flex-shrink: 0;
     }
-    .dot.ready { background: var(--success); box-shadow: 0 0 8px var(--success); }
-    .dot.playing { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); animation: beat 1s ease-in-out infinite; }
-    .dot.paused { background: #f5b942; }
-    .dot.done { background: var(--success); }
-    @keyframes beat { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(0.8);opacity:0.6} }
 
-    /* Progress */
+    .dot.ready {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .dot.playing {
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+      animation: beat 1s ease-in-out infinite;
+    }
+
+    .dot.paused {
+      background: #f5b942;
+    }
+
+    .dot.done {
+      background: var(--success);
+    }
+
+    @keyframes beat {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+
+      50% {
+        transform: scale(0.8);
+        opacity: 0.6
+      }
+    }
+
     .prog-track {
-      height: 8px; background: var(--surface-4); border-radius: 99px; overflow: hidden;
+      height: 8px;
+      background: var(--surface-4);
+      border-radius: 99px;
+      overflow: hidden;
       margin-bottom: 12px;
     }
+
     .prog-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--accent), #ffd066);
@@ -299,10 +617,21 @@
       width: 0%;
       transition: width 0.4s var(--ease);
     }
-    .prog-meta { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; color: var(--text-muted); }
 
-    /* Stat cards */
-    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .prog-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
     .stat-card {
       background: var(--surface-3);
       border: 1px solid var(--border);
@@ -311,55 +640,130 @@
       text-align: center;
       transition: all 200ms var(--ease);
     }
-    .stat-card:hover { transform: translateY(-2px); border-color: var(--border-soft); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .stat-val { font-size: 24px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
-    .stat-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-    /* Slider */
-    .slider-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-    .slider-head { display: flex; justify-content: space-between; font-size: 14px; }
-    .slider-name { color: var(--text); font-weight: 600; }
-    .slider-badge {
-      font-size: 13px; font-weight: 700; color: var(--accent);
-      background: var(--accent-dim); padding: 2px 10px; border-radius: var(--r-full);
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-soft);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
+
+    .stat-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .slider-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .slider-name {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .slider-badge {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 2px 10px;
+      border-radius: var(--r-full);
+    }
+
     input[type=range] {
-      -webkit-appearance: none; width: 100%; height: 6px;
-      background: var(--surface-4); border-radius: 99px; outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: var(--surface-4);
+      border-radius: 99px;
+      outline: none;
       transition: background 200ms var(--ease);
     }
-    input[type=range]:hover { background: var(--border); }
+
+    input[type=range]:hover {
+      background: var(--border);
+    }
+
     input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
-      background: var(--accent); cursor: pointer;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
       transition: transform 200ms var(--ease), box-shadow 200ms var(--ease);
       box-shadow: 0 0 0 4px var(--accent-dim);
     }
-    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); box-shadow: 0 0 0 6px var(--accent-dim); }
 
-    /* Speed presets */
-    .speed-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 16px; }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      box-shadow: 0 0 0 6px var(--accent-dim);
+    }
+
+    .speed-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
     .sp-btn {
       padding: 10px 0;
       border-radius: var(--r-sm);
-      font-size: 13px; font-weight: 700;
+      font-size: 13px;
+      font-weight: 700;
       background: var(--surface-3);
       border: 1px solid var(--border);
       color: var(--text-muted);
       transition: all 200ms var(--ease);
     }
-    .sp-btn:hover { background: var(--surface-4); color: var(--text); transform: translateY(-1px); }
-    .sp-btn:active { transform: translateY(1px); }
-    .sp-btn.on { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
-    /* Voice */
+    .sp-btn:hover {
+      background: var(--surface-4);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .sp-btn:active {
+      transform: translateY(1px);
+    }
+
+    .sp-btn.on {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     .voice-select {
       width: 100%;
       padding: 14px 16px;
       background: var(--surface-3);
       border: 1px solid var(--border);
       border-radius: var(--r-md);
-      font-size: 14px; font-weight: 500;
+      font-size: 14px;
+      font-weight: 500;
       outline: none;
       cursor: pointer;
       transition: all 200ms var(--ease);
@@ -369,1261 +773,1755 @@
       background-position: right 16px center;
       padding-right: 40px;
     }
-    .voice-select:hover { border-color: var(--border-soft); background-color: var(--surface-4); }
-    .voice-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
 
-    /* Voice group heading in select */
-    optgroup { color: var(--text-muted); font-weight: 700; font-size: 13px; }
+    .voice-select:hover {
+      border-color: var(--border-soft);
+      background-color: var(--surface-4);
+    }
 
-    /* Chunk toggle */
+    .voice-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    optgroup {
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
     .toggle-row {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 16px;
     }
-    .toggle-info { font-size: 14px; }
-    .toggle-lbl { font-weight: 700; color: var(--text); }
-    .toggle-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-    .toggle-wrap { position: relative; }
-    .toggle-input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+    .toggle-info {
+      font-size: 14px;
+    }
+
+    .toggle-lbl {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .toggle-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .toggle-wrap {
+      position: relative;
+    }
+
+    .toggle-input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
     .toggle-track {
-      display: block; width: 48px; height: 26px;
-      background: var(--surface-4); border-radius: 99px;
-      cursor: pointer; border: 1px solid var(--border);
+      display: block;
+      width: 48px;
+      height: 26px;
+      background: var(--surface-4);
+      border-radius: 99px;
+      cursor: pointer;
+      border: 1px solid var(--border);
       transition: all 200ms var(--ease);
       position: relative;
     }
+
     .toggle-track::after {
-      content: ''; position: absolute; top: 3px; left: 3px;
-      width: 18px; height: 18px; border-radius: 50%;
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
       background: var(--text-muted);
       transition: all 200ms var(--ease);
     }
-    .toggle-track:hover { border-color: var(--border-soft); }
-    .toggle-input:checked + .toggle-track { background: var(--accent); border-color: var(--accent); }
-    .toggle-input:checked + .toggle-track::after { transform: translateX(22px); background: #0b0a09; }
 
-    /* Chunk size input */
-    .chunk-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-    .chunk-lbl { font-size: 14px; font-weight: 600; color: var(--text-muted); flex: 1; }
-    .chunk-num {
-      width: 80px; padding: 10px 12px; text-align: center;
-      background: var(--surface-3); border: 1px solid var(--border);
-      border-radius: var(--r-md); font-size: 16px; font-weight: 800;
-      color: var(--text); outline: none; transition: all 200ms var(--ease);
+    .toggle-track:hover {
+      border-color: var(--border-soft);
     }
-    .chunk-num:hover { border-color: var(--border-soft); }
-    .chunk-num:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
 
-    /* Pause between chunks */
-    .pause-row { display: flex; align-items: center; gap: 12px; }
-    .pause-lbl { font-size: 14px; font-weight: 600; color: var(--text-muted); flex: 1; }
+    .toggle-input:checked+.toggle-track {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
 
-    /* kbd hints */
-    .kbds { display: flex; flex-direction: column; gap: 8px; }
-    .kbd-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .toggle-input:checked+.toggle-track::after {
+      transform: translateX(22px);
+      background: #0b0a09;
+    }
+
+    .chunk-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .chunk-lbl {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .chunk-num {
+      width: 80px;
+      padding: 10px 12px;
+      text-align: center;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      outline: none;
+      transition: all 200ms var(--ease);
+    }
+
+    .chunk-num:hover {
+      border-color: var(--border-soft);
+    }
+
+    .chunk-num:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    .rep-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .rep-lbl {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .rep-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .rep-btn {
+      width: 36px;
+      height: 32px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--surface-3);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 150ms var(--ease);
+    }
+
+    .rep-btn:hover {
+      background: var(--surface-4);
+      color: var(--text);
+    }
+
+    .rep-btn.on {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .sound-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .sound-lbl {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .kbds {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .kbd-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
     .kbd {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 28px; padding: 4px 10px; border-radius: var(--r-sm);
-      background: var(--surface-4); border: 1px solid var(--border);
-      font-size: 12px; font-weight: 700; color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      padding: 4px 10px;
+      border-radius: var(--r-sm);
+      background: var(--surface-4);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
       box-shadow: 0 2px 0 var(--border);
     }
 
-    /* Toast */
     #toast {
-      position: fixed; bottom: 32px; left: 50%;
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--r-xl); padding: 14px 24px;
-      font-size: 15px; font-weight: 700;
-      box-shadow: 0 16px 50px rgba(0,0,0,0.5);
-      z-index: 999; opacity: 0; pointer-events: none;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
       white-space: nowrap;
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* Chunk announcement banner */
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     #chunkBanner {
-      position: absolute; top: 16px; left: 50%; transform: translateX(-50%) scale(0.8);
-      background: var(--accent); color: #0b0a09;
-      padding: 8px 24px; border-radius: var(--r-full);
-      font-size: 15px; font-weight: 800;
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.8);
+      background: var(--accent);
+      color: #0b0a09;
+      padding: 8px 24px;
+      border-radius: var(--r-full);
+      font-size: 15px;
+      font-weight: 800;
       letter-spacing: 0.02em;
-      opacity: 0; pointer-events: none;
+      opacity: 0;
+      pointer-events: none;
       transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 20; white-space: nowrap;
+      z-index: 20;
+      white-space: nowrap;
       box-shadow: 0 6px 24px var(--accent-glow);
     }
-    #chunkBanner.pop { opacity: 1; transform: translateX(-50%) scale(1); }
 
-    /* ── START ANIMATION ── */
+    #chunkBanner.pop {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+
     #startAnim {
-      position: fixed; inset: 0; background: rgba(11,10,9,0.85);
-      display: none; place-items: center; z-index: 200;
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 10, 9, 0.85);
+      display: none;
+      place-items: center;
+      z-index: 200;
       backdrop-filter: blur(5px);
     }
-    #startAnim.on { display: grid; }
+
+    #startAnim.on {
+      display: grid;
+    }
+
     .sa-text {
       font-family: var(--font-display);
-      font-size: clamp(60px,15vw,120px); font-weight: 900;
+      font-size: clamp(60px, 15vw, 120px);
+      font-weight: 900;
       color: var(--accent);
-      animation: saPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
+      animation: saPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    @keyframes saPop { from{transform:scale(0.5);opacity:0} to{transform:scale(1.1);opacity:1} }
 
-    /* ── STATS MODAL ── */
+    @keyframes saPop {
+      from {
+        transform: scale(0.5);
+        opacity: 0
+      }
+
+      to {
+        transform: scale(1.1);
+        opacity: 1
+      }
+    }
+
     #statsModal {
-      position: fixed; inset: 0; background: rgba(11,10,9,0.88);
-      display: none; place-items: center; z-index: 200;
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 10, 9, 0.88);
+      display: none;
+      place-items: center;
+      z-index: 200;
       backdrop-filter: blur(8px);
     }
-    #statsModal.on { display: grid; }
+
+    #statsModal.on {
+      display: grid;
+    }
+
     .stats-card {
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--r-xl); padding: 36px; max-width: 420px; width: 90%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 36px;
+      max-width: 420px;
+      width: 90%;
       text-align: center;
     }
-    .stats-card h2 { font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
-    .stats-card p { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-    .stats-item { background: var(--surface-3); border-radius: var(--r-md); padding: 16px 12px; }
-    .stats-item .sv { font-size: 28px; font-weight: 800; color: var(--accent); }
-    .stats-item .sl { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
-    .stats-close { width: 100%; padding: 14px; border-radius: var(--r-lg); background: var(--accent); color: #0b0a09; font-size: 15px; font-weight: 800; cursor: pointer; border: none; transition: all 200ms var(--ease); }
-    .stats-close:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-    /* ── CHUNK COUNTER BADGE ── */
+    .stats-card h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .stats-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stats-item {
+      background: var(--surface-3);
+      border-radius: var(--r-md);
+      padding: 16px 12px;
+    }
+
+    .stats-item .sv {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .stats-item .sl {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .stats-close {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--r-lg);
+      background: var(--accent);
+      color: #0b0a09;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      transition: all 200ms var(--ease);
+    }
+
+    .stats-close:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
     #chunkCounter {
-      position: absolute; top: 16px; right: 16px;
-      background: var(--surface-3); border: 1px solid var(--border);
-      border-radius: var(--r-full); padding: 6px 14px;
-      font-size: 13px; font-weight: 700; color: var(--text-muted);
-      display: none; z-index: 10;
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: none;
+      z-index: 10;
       transition: all 0.2s;
     }
-    #chunkCounter.on { display: block; }
-    #chunkCounter span { color: var(--accent); }
 
-    /* ── WRITING PAD ── */
+    #chunkCounter.on {
+      display: block;
+    }
+
+    #chunkCounter span {
+      color: var(--accent);
+    }
+
+    /* click-to-start info bar */
+    #clickInfo {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--accent-dim);
+      border-top: 1px solid var(--accent);
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-align: center;
+      display: none;
+      z-index: 15;
+    }
+
+    #clickInfo.on {
+      display: block;
+    }
+
+    /* WRITING PAD */
     .write-zone {
-      display: none; flex-direction: column;
+      display: none;
+      flex-direction: column;
       border-top: 2px solid var(--accent-dim);
       background: var(--surface);
     }
-    .write-zone.on { display: flex; }
+
+    .write-zone.on {
+      display: flex;
+    }
+
     .write-toolbar {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 8px 20px;
       border-bottom: 1px solid var(--border-soft);
       background: var(--surface);
     }
-    .write-title { font-size: 12px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.07em; }
+
+    .write-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
     #writeArea {
-      width: 100%; flex: 1;
-      background: transparent; border: none; outline: none; resize: none;
+      width: 100%;
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
       padding: 20px 24px;
-      font-size: 16px; line-height: 1.75;
+      font-size: 16px;
+      line-height: 1.75;
       color: var(--text);
       min-height: 140px;
     }
-    #writeArea::placeholder { color: var(--text-faint); }
 
-    /* ── FOCUS MODE ── */
-    body.focus-mode .right-panel { display: none; }
-    body.focus-mode .workspace { grid-template-columns: 1fr; }
-    body.focus-mode #textInput { font-size: 22px; }
-    body.focus-mode #dictDisplay { font-size: 26px; line-height: 2.2; }
+    #writeArea::placeholder {
+      color: var(--text-faint);
+    }
 
-    /* ── DIFFICULTY PRESETS ── */
-    .preset-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 4px; }
+    /* FOCUS MODE */
+    body.focus-mode .right-panel {
+      display: none;
+    }
+
+    body.focus-mode .workspace {
+      grid-template-columns: 1fr;
+    }
+
+    body.focus-mode #textInput {
+      font-size: 22px;
+    }
+
+    body.focus-mode #dictDisplay {
+      font-size: 24px;
+      line-height: 2;
+    }
+
+    /* PRESETS */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
     .preset-btn {
-      padding: 12px 6px; border-radius: var(--r-md);
+      padding: 12px 6px;
+      border-radius: var(--r-md);
       border: 1px solid var(--border);
       background: var(--surface-3);
-      font-size: 12px; font-weight: 700;
+      font-size: 12px;
+      font-weight: 700;
       color: var(--text-muted);
-      cursor: pointer; transition: all 200ms var(--ease);
-      text-align: center; line-height: 1.4;
+      cursor: pointer;
+      transition: all 200ms var(--ease);
+      text-align: center;
+      line-height: 1.4;
     }
-    .preset-btn .pi { font-size: 18px; display: block; margin-bottom: 4px; }
-    .preset-btn:hover { background: var(--surface-4); color: var(--text); transform: translateY(-1px); }
-    .preset-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
 
-    /* ── REPEAT COUNT ── */
-    .rep-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-    .rep-lbl { font-size: 14px; font-weight: 600; color: var(--text-muted); flex: 1; }
-    .rep-btns { display: flex; gap: 4px; }
-    .rep-btn {
-      width: 36px; height: 32px; border-radius: var(--r-sm);
-      border: 1px solid var(--border); background: var(--surface-3);
-      font-size: 13px; font-weight: 700; color: var(--text-muted);
-      cursor: pointer; transition: all 150ms var(--ease);
+    .preset-btn .pi {
+      font-size: 18px;
+      display: block;
+      margin-bottom: 4px;
     }
-    .rep-btn:hover { background: var(--surface-4); color: var(--text); }
-    .rep-btn.on { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
-    /* ── SOUND TOGGLE ── */
-    .sound-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .sound-lbl { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .preset-btn:hover {
+      background: var(--surface-4);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
 
-    /* Responsive Design */
+    .preset-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
     @media(max-width: 1024px) {
-      .workspace { grid-template-columns: 1fr 380px; }
+      .workspace {
+        grid-template-columns: 1fr 380px;
+      }
     }
+
     @media(max-width: 850px) {
-      body { display: flex; flex-direction: column; height: auto; overflow: auto; }
-      .header { flex-shrink: 0; min-height: 72px; }
-      .workspace { display: flex; flex-direction: column; height: auto; flex: 1; }
-      .left-panel { height: 55vh; min-height: 400px; border-right: none; border-bottom: 1px solid var(--border-soft); }
-      .right-panel { flex: 1; overflow: visible; padding-bottom: 40px; }
+      body {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: auto;
+      }
+
+      .header {
+        flex-shrink: 0;
+        min-height: 72px;
+      }
+
+      .workspace {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        flex: 1;
+      }
+
+      .left-panel {
+        height: 55vh;
+        min-height: 400px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-soft);
+      }
+
+      .right-panel {
+        flex: 1;
+        overflow: visible;
+        padding-bottom: 40px;
+      }
     }
+
     @media(max-width: 480px) {
-      .header { padding: 16px 20px; flex-wrap: wrap; }
-      .logo-name { font-size: 18px; }
-      .logo-tag { font-size: 11px; }
-      .speed-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-      .stat-row { grid-template-columns: 1fr; }
+      .header {
+        padding: 16px 20px;
+        flex-wrap: wrap;
+      }
+
+      .logo-name {
+        font-size: 18px;
+      }
+
+      .logo-tag {
+        font-size: 11px;
+      }
+
+      .speed-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .stat-row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="logo">
-    <div class="logo-mark">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-        <line x1="12" y1="19" x2="12" y2="22"/>
-      </svg>
+  <header class="header">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" y1="19" x2="12" y2="22" />
+        </svg>
+      </div>
+      <span class="logo-name">AI <em>Dictator</em></span>
+      <span class="logo-tag">for Students</span>
     </div>
-    <span class="logo-name">AI <em>Dictator</em></span>
-    <span class="logo-tag">for Students</span>
-  </div>
-  <div class="hdr-right">
-    <button class="icon-btn" id="btnExport" title="Export notes as .txt" aria-label="Export notes">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    </button>
-    <button class="icon-btn" id="btnSound" title="Toggle sound cues" aria-label="Toggle sound">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-    </button>
-    <button class="icon-btn" id="btnFocus" title="Focus mode" aria-label="Focus mode">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
-    </button>
-    <button class="icon-btn" id="btnWritePad" title="Toggle writing pad" aria-label="Writing pad">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-    </button>
-    <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-  </div>
-</header>
-
-<!-- WORKSPACE -->
-<div class="workspace">
-
-  <!-- LEFT -->
-  <div class="left-panel">
-    <div class="input-toolbar">
-      <span class="tb-label">Text</span>
-      <button class="tb-btn" id="btnPaste">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="5" y="6" width="14" height="16" rx="2"/></svg> Paste
+    <div class="hdr-right">
+      <button class="icon-btn" id="btnExport" title="Export notes as .txt" aria-label="Export notes">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
       </button>
-      <button class="tb-btn" id="btnUpload">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload
+      <button class="icon-btn" id="btnSound" title="Toggle sound cues" aria-label="Toggle sound">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+        </svg>
       </button>
-      <button class="tb-btn" id="btnSample">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Sample
+      <button class="icon-btn" id="btnFocus" title="Focus mode" aria-label="Focus mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+          <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+        </svg>
       </button>
-      <button class="tb-btn" id="btnClear">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg> Clear
+      <button class="icon-btn" id="btnWritePad" title="Toggle writing pad" aria-label="Writing pad">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
       </button>
-      <input type="file" id="fileInput" accept=".txt,.pdf,application/pdf,text/plain" style="display:none">
+      <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <div class="left-panel">
+      <div class="input-toolbar">
+        <span class="tb-label">Text</span>
+        <button class="tb-btn" id="btnPaste">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="2" width="6" height="4" rx="1" />
+            <rect x="5" y="6" width="14" height="16" rx="2" />
+          </svg> Paste
+        </button>
+        <button class="tb-btn" id="btnUpload">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg> Upload
+        </button>
+        <button class="tb-btn" id="btnSample">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg> Sample
+        </button>
+        <button class="tb-btn" id="btnClear">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14H6L5 6" />
+          </svg> Clear
+        </button>
+        <input type="file" id="fileInput" accept=".txt,.pdf,application/pdf,text/plain" style="display:none">
+      </div>
+
+      <div class="text-zone" id="textZone">
+        <textarea id="textInput" placeholder="Paste your notes, type text, or upload a .txt / .pdf file…
+
+The AI will dictate it — reading every 5 words, then repeating them, so you can write them down comfortably. Just like a real teacher! ✍️
+
+TIP: After starting, click any word to jump to that position!"></textarea>
+        <div id="dictDisplay"></div>
+        <div class="drop-overlay" id="dropOverlay">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            style="color:var(--accent)">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <p>Drop .txt or .pdf file here</p>
+        </div>
+        <div id="chunkBanner">▶ Repeat...</div>
+        <div id="chunkCounter">Chunk <span id="ccNow">1</span> / <span id="ccTotal">1</span></div>
+        <div id="clickInfo">👆 Click any word to start dictation from that point</div>
+      </div>
+
+      <div class="write-zone" id="writePad">
+        <div class="write-toolbar">
+          <span class="write-title">✍️ Your Notes</span>
+          <button class="tb-btn" id="btnClearWrite" style="font-size:12px;padding:4px 10px">Clear</button>
+        </div>
+        <textarea id="writeArea" placeholder="Write down what you hear here…"></textarea>
+      </div>
     </div>
 
-    <div class="text-zone" id="textZone">
-      <textarea id="textInput" placeholder="Paste your notes, type text, or upload a .txt / .pdf file…
+    <div class="right-panel">
+      <div class="rpanel-section">
+        <div class="status-pill">
+          <div class="dot" id="dot"></div>
+          <span id="statusTxt">Ready to dictate</span>
+        </div>
+      </div>
 
-The AI will dictate it — reading every 5 words, then repeating them, so you can write them down comfortably. Just like a real teacher! ✍️"></textarea>
-      <div id="dictDisplay"></div>
-      <div class="drop-overlay" id="dropOverlay">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--accent)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <p>Drop .txt or .pdf file here</p>
+      <div class="rpanel-section">
+        <button class="btn-main" id="btnPlay">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+          Start Dictation
+        </button>
+        <div style="height:8px"></div>
+        <div class="ctrl-grid">
+          <button class="btn-sec" id="btnPause" disabled>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16" />
+              <rect x="14" y="4" width="4" height="16" />
+            </svg>
+            Pause
+          </button>
+          <button class="btn-sec" id="btnRepeat" disabled>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 .49-4.68" />
+            </svg>
+            Repeat
+          </button>
+          <button class="btn-sec" id="btnPrev" disabled>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Prev
+          </button>
+          <button class="btn-sec" id="btnNext" disabled>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+            Next
+          </button>
+        </div>
       </div>
-      <div id="chunkBanner">▶ Repeat...</div>
-      <div id="chunkCounter">Chunk <span id="ccNow">1</span> / <span id="ccTotal">1</span></div>
-    </div>
-    <!-- WRITING PAD -->
-    <div class="write-zone" id="writePad">
-      <div class="write-toolbar">
-        <span class="write-title">✍️ Your Notes</span>
-        <button class="tb-btn" id="btnClearWrite" style="font-size:12px;padding:4px 10px">Clear</button>
+
+      <div class="rpanel-section">
+        <div class="sec-title">Progress</div>
+        <div class="prog-track">
+          <div class="prog-fill" id="progFill"></div>
+        </div>
+        <div class="prog-meta">
+          <span id="metaSpoken">0 spoken</span>
+          <span id="metaLeft">0 left</span>
+        </div>
+        <div style="height:10px"></div>
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-val" id="svTotal">0</div>
+            <div class="stat-lbl">Words</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="svChunk">0</div>
+            <div class="stat-lbl">Chunk</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="svTime">0:00</div>
+            <div class="stat-lbl">Est.</div>
+          </div>
+        </div>
       </div>
-      <textarea id="writeArea" placeholder="Write down what you hear here…"></textarea>
+
+      <div class="rpanel-section">
+        <div class="sec-title">Quick Presets</div>
+        <div class="preset-grid">
+          <button class="preset-btn" data-preset="exam">
+            <span class="pi">📝</span>Exam<br><small style="font-weight:500;font-size:10px;color:var(--text-faint)">3w ·
+              Slow · 3×</small>
+          </button>
+          <button class="preset-btn active" data-preset="normal">
+            <span class="pi">📖</span>Normal<br><small style="font-weight:500;font-size:10px;color:var(--text-faint)">5w
+              · Mid · 1×</small>
+          </button>
+          <button class="preset-btn" data-preset="review">
+            <span class="pi">⚡</span>Review<br><small style="font-weight:500;font-size:10px;color:var(--text-faint)">8w
+              · Fast · 1×</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="rpanel-section">
+        <div class="sec-title">Chunk Dictation</div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-lbl">Repeat every N words</div>
+            <div class="toggle-sub">Reads chunk → pauses → repeats it</div>
+          </div>
+          <div class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" id="chunkToggle" checked>
+            <label class="toggle-track" for="chunkToggle"></label>
+          </div>
+        </div>
+        <div class="chunk-row">
+          <span class="chunk-lbl">Words per chunk</span>
+          <input type="number" class="chunk-num" id="chunkSize" min="2" max="20" value="5">
+        </div>
+        <div class="rep-row">
+          <span class="rep-lbl">Repeat count</span>
+          <div class="rep-btns">
+            <button class="rep-btn on" data-rep="1">1×</button>
+            <button class="rep-btn" data-rep="2">2×</button>
+            <button class="rep-btn" data-rep="3">3×</button>
+          </div>
+        </div>
+        <div class="sound-row">
+          <span class="sound-lbl">🔔 Sound cues between chunks</span>
+          <div class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" id="soundToggle" checked>
+            <label class="toggle-track" for="soundToggle"></label>
+          </div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="slider-name">Pause between chunks</span>
+            <span class="slider-badge" id="pauseVal">1.2s</span>
+          </div>
+          <input type="range" id="pauseSlider" min="0.5" max="4" step="0.1" value="1.2">
+        </div>
+        <div class="toggle-row" style="margin-bottom:0">
+          <div class="toggle-info">
+            <div class="toggle-lbl">Say punctuation aloud</div>
+            <div class="toggle-sub">Speaks "comma", "full stop", "question mark" etc.</div>
+          </div>
+          <div class="toggle-wrap">
+            <input type="checkbox" class="toggle-input" id="punctToggle" checked>
+            <label class="toggle-track" for="punctToggle"></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="rpanel-section">
+        <div class="sec-title">Speed</div>
+        <div class="speed-grid">
+          <button class="sp-btn" data-r="0.55">Slow</button>
+          <button class="sp-btn on" data-r="0.8">Normal</button>
+          <button class="sp-btn" data-r="1.0">Brisk</button>
+          <button class="sp-btn" data-r="1.2">Fast</button>
+          <button class="sp-btn" data-r="1.5">Turbo</button>
+        </div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="slider-name">Fine-tune rate</span>
+            <span class="slider-badge" id="rateVal">0.80×</span>
+          </div>
+          <input type="range" id="rateSlider" min="0.4" max="1.8" step="0.05" value="0.8">
+        </div>
+        <div class="slider-row">
+          <div class="slider-head">
+            <span class="slider-name">Voice pitch</span>
+            <span class="slider-badge" id="pitchVal">1.0</span>
+          </div>
+          <input type="range" id="pitchSlider" min="0.5" max="1.8" step="0.05" value="1.0">
+        </div>
+      </div>
+
+      <div class="rpanel-section">
+        <div class="sec-title">Voice</div>
+        <select class="voice-select" id="voiceSel">
+          <option>Loading voices…</option>
+        </select>
+        <div style="height:8px"></div>
+        <div style="font-size:11px; color:var(--text-muted); line-height:1.5;">
+          🇮🇳 Indian English voices shown first. For best quality use <strong style="color:var(--text)">Google
+            voices</strong> (requires Chrome).
+        </div>
+      </div>
+
+      <div class="rpanel-section">
+        <div class="sec-title">Keyboard</div>
+        <div class="kbds">
+          <div class="kbd-row"><kbd class="kbd">Space</kbd> Play / Pause</div>
+          <div class="kbd-row"><kbd class="kbd">R</kbd> Repeat chunk</div>
+          <div class="kbd-row"><kbd class="kbd">→</kbd> Next chunk</div>
+          <div class="kbd-row"><kbd class="kbd">←</kbd> Prev chunk</div>
+          <div class="kbd-row"><kbd class="kbd">Esc</kbd> Stop</div>
+          <div class="kbd-row"><kbd class="kbd">Click</kbd> Jump to word</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- RIGHT -->
-  <div class="right-panel">
-
-    <!-- STATUS -->
-    <div class="rpanel-section">
-      <div class="status-pill">
-        <div class="dot" id="dot"></div>
-        <span id="statusTxt">Ready to dictate</span>
-      </div>
-    </div>
-
-    <!-- CONTROLS -->
-    <div class="rpanel-section">
-      <button class="btn-main" id="btnPlay">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Start Dictation
-      </button>
-      <div style="height:8px"></div>
-      <div class="ctrl-grid">
-        <button class="btn-sec" id="btnPause" disabled>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-          Pause
-        </button>
-        <button class="btn-sec" id="btnRepeat" disabled>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.68"/></svg>
-          Repeat
-        </button>
-        <button class="btn-sec" id="btnPrev" disabled>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-          Prev
-        </button>
-        <button class="btn-sec" id="btnNext" disabled>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          Next
-        </button>
-      </div>
-    </div>
-
-    <!-- PROGRESS -->
-    <div class="rpanel-section">
-      <div class="sec-title">Progress</div>
-      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
-      <div class="prog-meta">
-        <span id="metaSpoken">0 spoken</span>
-        <span id="metaLeft">0 left</span>
-      </div>
-      <div style="height:10px"></div>
-      <div class="stat-row">
-        <div class="stat-card"><div class="stat-val" id="svTotal">0</div><div class="stat-lbl">Words</div></div>
-        <div class="stat-card"><div class="stat-val" id="svChunk">0</div><div class="stat-lbl">Chunk</div></div>
-        <div class="stat-card"><div class="stat-val" id="svTime">0:00</div><div class="stat-lbl">Est.</div></div>
-      </div>
-    </div>
-
-    <!-- DIFFICULTY PRESETS -->
-    <div class="rpanel-section">
-      <div class="sec-title">Quick Presets</div>
-      <div class="preset-grid">
-        <button class="preset-btn" id="presetExam" data-preset="exam">
-          <span class="pi">📝</span>Exam<br><small style="font-weight:500;font-size:10px;color:var(--text-faint)">3w · Slow · 3×</small>
-        </button>
-        <button class="preset-btn active" id="presetNormal" data-preset="normal">
-          <span class="pi">📖</span>Normal<br><small style="font-weight:500;font-size:10px;color:var(--text-faint)">5w · Mid · 1×</small>
-        </button>
-        <button class="preset-btn" id="presetReview" data-preset="review">
-          <span class="pi">⚡</span>Review<br><small style="font-weight:500;font-size:10px;color:var(--text-faint)">8w · Fast · 1×</small>
-        </button>
-      </div>
-    </div>
-
-    <!-- CHUNK SETTINGS -->
-    <div class="rpanel-section">
-      <div class="sec-title">Chunk Dictation</div>
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <div class="toggle-lbl">Repeat every N words</div>
-          <div class="toggle-sub">Reads chunk → pauses → repeats it</div>
-        </div>
-        <div class="toggle-wrap">
-          <input type="checkbox" class="toggle-input" id="chunkToggle" checked>
-          <label class="toggle-track" for="chunkToggle"></label>
-        </div>
-      </div>
-      <div class="chunk-row">
-        <span class="chunk-lbl">Words per chunk</span>
-        <input type="number" class="chunk-num" id="chunkSize" min="2" max="20" value="5">
-      </div>
-      <div class="rep-row">
-        <span class="rep-lbl">Repeat count</span>
-        <div class="rep-btns">
-          <button class="rep-btn on" data-rep="1">1×</button>
-          <button class="rep-btn" data-rep="2">2×</button>
-          <button class="rep-btn" data-rep="3">3×</button>
-        </div>
-      </div>
-      <div class="sound-row">
-        <span class="sound-lbl">🔔 Sound cues between chunks</span>
-        <div class="toggle-wrap">
-          <input type="checkbox" class="toggle-input" id="soundToggle" checked>
-          <label class="toggle-track" for="soundToggle"></label>
-        </div>
-      </div>
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-name">Pause between chunks</span>
-          <span class="slider-badge" id="pauseVal">1.2s</span>
-        </div>
-        <input type="range" id="pauseSlider" min="0.5" max="4" step="0.1" value="1.2">
-      </div>
-    </div>
-
-    <!-- SPEED -->
-    <div class="rpanel-section">
-      <div class="sec-title">Speed</div>
-      <div class="speed-grid">
-        <button class="sp-btn" data-r="0.55">Slow</button>
-        <button class="sp-btn on" data-r="0.8">Normal</button>
-        <button class="sp-btn" data-r="1.0">Brisk</button>
-        <button class="sp-btn" data-r="1.2">Fast</button>
-        <button class="sp-btn" data-r="1.5">Turbo</button>
-      </div>
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-name">Fine-tune rate</span>
-          <span class="slider-badge" id="rateVal">0.80×</span>
-        </div>
-        <input type="range" id="rateSlider" min="0.4" max="1.8" step="0.05" value="0.8">
-      </div>
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-name">Voice pitch</span>
-          <span class="slider-badge" id="pitchVal">1.0</span>
-        </div>
-        <input type="range" id="pitchSlider" min="0.5" max="1.8" step="0.05" value="1.0">
-      </div>
-    </div>
-
-    <!-- VOICE -->
-    <div class="rpanel-section">
-      <div class="sec-title">Voice</div>
-      <select class="voice-select" id="voiceSel">
-        <option>Loading voices…</option>
-      </select>
-      <div style="height:8px"></div>
-      <div style="font-size:11px; color:var(--text-muted); line-height:1.5;">
-        🇮🇳 Indian English voices shown first. For best quality use <strong style="color:var(--text)">Google voices</strong> (requires Chrome).
-      </div>
-    </div>
-
-    <!-- SHORTCUTS -->
-    <div class="rpanel-section">
-      <div class="sec-title">Keyboard</div>
-      <div class="kbds">
-        <div class="kbd-row"><kbd class="kbd">Space</kbd> Play / Pause</div>
-        <div class="kbd-row"><kbd class="kbd">R</kbd> Repeat chunk</div>
-        <div class="kbd-row"><kbd class="kbd">→</kbd> Next chunk</div>
-        <div class="kbd-row"><kbd class="kbd">←</kbd> Prev chunk</div>
-        <div class="kbd-row"><kbd class="kbd">Esc</kbd> Stop</div>
-      </div>
-    </div>
-
+  <div id="startAnim">
+    <div class="sa-text" id="saText">Start!</div>
   </div>
-</div>
-
-<!-- START ANIMATION OVERLAY -->
-<div id="startAnim"><div class="sa-text" id="saText">Start!</div></div>
-
-<!-- STATS MODAL -->
-<div id="statsModal">
-  <div class="stats-card">
-    <h2>🎉 Well Done!</h2>
-    <p>Dictation complete. Here's your session summary.</p>
-    <div class="stats-grid">
-      <div class="stats-item"><div class="sv" id="stWords">0</div><div class="sl">Words</div></div>
-      <div class="stats-item"><div class="sv" id="stChunks">0</div><div class="sl">Chunks</div></div>
-      <div class="stats-item"><div class="sv" id="stTime">0:00</div><div class="sl">Time Taken</div></div>
-      <div class="stats-item"><div class="sv" id="stWPM">0</div><div class="sl">Est. WPM</div></div>
+  <div id="statsModal">
+    <div class="stats-card">
+      <h2>🎉 Well Done!</h2>
+      <p>Dictation complete. Here's your session summary.</p>
+      <div class="stats-grid">
+        <div class="stats-item">
+          <div class="sv" id="stWords">0</div>
+          <div class="sl">Words</div>
+        </div>
+        <div class="stats-item">
+          <div class="sv" id="stChunks">0</div>
+          <div class="sl">Chunks</div>
+        </div>
+        <div class="stats-item">
+          <div class="sv" id="stTime">0:00</div>
+          <div class="sl">Time Taken</div>
+        </div>
+        <div class="stats-item">
+          <div class="sv" id="stWPM">0</div>
+          <div class="sl">Est. WPM</div>
+        </div>
+      </div>
+      <button class="stats-close" id="statsCloseBtn">Close & Continue ✓</button>
     </div>
-    <button class="stats-close" id="statsCloseBtn">Close & Continue ✓</button>
   </div>
-</div>
+  <div id="toast"></div>
 
-<div id="toast"></div>
+  <script>
+    // ── PUNCTUATION MAP ──────────────────────────────────────────────────────────
+    const PUNCT_MAP = {
+      '.': 'full stop',
+      ',': 'comma',
+      '?': 'question mark',
+      '!': 'exclamation mark',
+      ':': 'colon',
+      ';': 'semicolon',
+      '-': 'dash',
+      '—': 'dash',
+      '(': 'open bracket',
+      ')': 'close bracket',
+      '"': 'quote',
+      '"': 'quote',
+      '"': 'quote',
+      "'": 'apostrophe',
+      '…': 'ellipsis',
+    };
 
-<script>
-// ── Core State ──────────────────────────────────────────────────────────────
-const synth = window.speechSynthesis;
-let allVoices = [];
-let isPlaying = false, isPaused = false;
-let rate = 0.8, pitch = 1.0, chunkSize = 5, pauseDur = 1.2;
-let useChunks = true;
-let repeatCount = 1;      // Feature 6: custom repeat count
-let soundEnabled = true;  // Feature 10: sound cues
-let focusMode = false;    // Feature 8: focus mode
-let sessionStart = null;  // Feature 7: session timer
-let allWords = [];
-let allWordEls = [];
-let chunks = [];
-let chunkIdx = 0;
-let totalWords = 0;
-let spokenWords = 0;
+    // ── CORE STATE ───────────────────────────────────────────────────────────────
+    const synth = window.speechSynthesis;
+    let allVoices = [];
+    let isPlaying = false, isPaused = false;
+    let rate = 0.8, pitch = 1.0, chunkSize = 5, pauseDur = 1.2;
+    let useChunks = true;
+    let repeatCount = 1;
+    let soundEnabled = true;
+    let sayPunctuation = true;
+    let focusMode = false;
+    let sessionStart = null;
+    let stopRequested = false;
+    let jumpToChunk = -1;  // for click-to-start
 
-// ── Theme ───────────────────────────────────────────────────────────────────
-const root = document.documentElement;
-let theme = 'dark';
-document.getElementById('themeBtn').addEventListener('click', () => {
-  theme = theme === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', theme);
-  document.getElementById('themeBtn').innerHTML = theme === 'dark'
-    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
-    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-});
+    // Word/chunk model
+    // Each token: { text, display, paraBreakBefore, globalIdx, chunkIdx }
+    let tokens = [];       // flat list of word tokens
+    let chunks = [];       // array of arrays of token indices
+    let chunkIdx = 0;
+    let totalWords = 0;
+    let spokenWords = 0;
+    let wordEls = [];      // parallel to tokens
 
-// ── Toast ───────────────────────────────────────────────────────────────────
-function toast(msg, ms = 2000) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), ms);
-}
-
-// ── Voice Loading ────────────────────────────────────────────────────────────
-function loadVoices() {
-  allVoices = synth.getVoices();
-  const sel = document.getElementById('voiceSel');
-  sel.innerHTML = '';
-
-  const groups = {
-    '🇮🇳 Indian English': allVoices.filter(v => v.lang === 'en-IN'),
-    '🇬🇧 British English': allVoices.filter(v => v.lang === 'en-GB'),
-    '🇺🇸 American English': allVoices.filter(v => v.lang === 'en-US'),
-    '🇦🇺 Australian English': allVoices.filter(v => v.lang === 'en-AU'),
-    '🌍 Other English': allVoices.filter(v => v.lang.startsWith('en') && !['en-IN','en-GB','en-US','en-AU'].includes(v.lang)),
-    '🌐 Other Languages': allVoices.filter(v => !v.lang.startsWith('en')),
-  };
-
-  let firstOption = null;
-  for (const [label, voices] of Object.entries(groups)) {
-    if (!voices.length) continue;
-    const grp = document.createElement('optgroup');
-    grp.label = label;
-    voices.forEach(v => {
-      const o = document.createElement('option');
-      o.value = v.name;
-      o.textContent = v.name.replace('Google ', '⭐ ').replace('Microsoft ', '🔵 ');
-      grp.appendChild(o);
-      if (!firstOption) firstOption = o;
-      // auto-select Google Indian if available
-      if (v.name.toLowerCase().includes('google') && v.lang === 'en-IN') o.selected = true;
+    // ── THEME ────────────────────────────────────────────────────────────────────
+    const root = document.documentElement;
+    let theme = 'dark';
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', theme);
+      document.getElementById('themeBtn').innerHTML = theme === 'dark'
+        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
     });
-    sel.appendChild(grp);
-  }
-  if (!sel.value && firstOption) firstOption.selected = true;
-}
-loadVoices();
-if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
 
-// ── Text stats ───────────────────────────────────────────────────────────────
-function updateStats() {
-  const txt = document.getElementById('textInput').value.trim();
-  const wc = txt ? txt.split(/\s+/).filter(Boolean).length : 0;
-  document.getElementById('svTotal').textContent = wc;
-  document.getElementById('svChunk').textContent = parseInt(document.getElementById('chunkSize').value) || 5;
-  const secs = wc / (rate * 2.8);
-  const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
-  document.getElementById('svTime').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-  document.getElementById('metaLeft').textContent = `${wc} left`;
-}
-document.getElementById('textInput').addEventListener('input', updateStats);
+    // ── TOAST ─────────────────────────────────────────────────────────────────────
+    function toast(msg, ms = 2000) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), ms);
+    }
 
-// ── Build word display ────────────────────────────────────────────────────────
-function buildDisplay(text) {
-  const disp = document.getElementById('dictDisplay');
-  disp.innerHTML = '';
-  allWordEls = [];
-  const tokens = text.split(/(\s+)/);
-  let wi = 0;
+    // ── VOICE LOADING ─────────────────────────────────────────────────────────────
+    function loadVoices() {
+      allVoices = synth.getVoices();
+      const sel = document.getElementById('voiceSel');
+      sel.innerHTML = '';
+      const groups = {
+        '🇮🇳 Indian English': allVoices.filter(v => v.lang === 'en-IN'),
+        '🇬🇧 British English': allVoices.filter(v => v.lang === 'en-GB'),
+        '🇺🇸 American English': allVoices.filter(v => v.lang === 'en-US'),
+        '🇦🇺 Australian English': allVoices.filter(v => v.lang === 'en-AU'),
+        '🌍 Other English': allVoices.filter(v => v.lang.startsWith('en') && !['en-IN', 'en-GB', 'en-US', 'en-AU'].includes(v.lang)),
+        '🌐 Other Languages': allVoices.filter(v => !v.lang.startsWith('en')),
+      };
+      let hasVoice = false;
+      for (const [label, voices] of Object.entries(groups)) {
+        if (!voices.length) continue;
+        const g = document.createElement('optgroup');
+        g.label = label;
+        voices.forEach(v => {
+          const o = document.createElement('option');
+          const isGoogle = v.name.toLowerCase().includes('google');
+          o.value = v.name;
+          o.textContent = (isGoogle ? '⭐ ' : '') + v.name;
+          if (!hasVoice) { o.selected = true; hasVoice = true; }
+          g.appendChild(o);
+        });
+        sel.appendChild(g);
+      }
+      if (!hasVoice) sel.innerHTML = '<option>No voices found</option>';
+    }
+    loadVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
 
-  // Split into chunks first
-  const rawWords = tokens.filter(t => !/^\s+$/.test(t) && t.length > 0);
-  const cs = parseInt(document.getElementById('chunkSize').value) || 5;
-  chunks = [];
-  for (let i = 0; i < rawWords.length; i += cs) {
-    chunks.push(rawWords.slice(i, i + cs));
-  }
+    function getVoice() {
+      const n = document.getElementById('voiceSel').value;
+      return allVoices.find(v => v.name === n) || null;
+    }
 
-  // Render with chunk separators
-  tokens.forEach(token => {
-    if (/^\s+$/.test(token)) {
-      disp.appendChild(document.createTextNode(token));
-    } else if (token.length > 0) {
-      const span = document.createElement('span');
-      span.className = 'w';
-      span.textContent = token;
-      span.dataset.wi = wi;
-      disp.appendChild(span);
-      allWordEls.push(span);
-      wi++;
-      // Add dot separator after every chunkSize words (but not last)
-      if (wi % cs === 0 && wi < rawWords.length) {
-        const dot = document.createElement('span');
-        dot.className = 'chunk-sep';
-        dot.id = `csep-${Math.floor((wi - 1) / cs)}`;
-        disp.appendChild(dot);
+    // ── AUDIO CUE ─────────────────────────────────────────────────────────────────
+    function playBeep(freq = 660, dur = 0.08) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value = freq; o.type = 'sine';
+        g.gain.setValueAtTime(0.18, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        o.start(ctx.currentTime); o.stop(ctx.currentTime + dur);
+      } catch (e) { }
+    }
+
+    // ── SPEAK HELPER ─────────────────────────────────────────────────────────────
+    function speak(text, r, p) {
+      return new Promise(resolve => {
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = r; u.pitch = p;
+        const v = getVoice();
+        if (v) u.voice = v;
+        u.onend = resolve;
+        u.onerror = resolve;
+        synth.speak(u);
+      });
+    }
+
+    // ── SLEEP HELPER ─────────────────────────────────────────────────────────────
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // ── EXPAND PUNCTUATION for TTS ────────────────────────────────────────────────
+    // Takes a word token's text and returns TTS-ready string
+    function ttsText(rawWord) {
+      if (!sayPunctuation) {
+        // Strip trailing punctuation for TTS only
+        return rawWord.replace(/[.,?!:;—\-(){}"'"'…]+$/, '').trim() || rawWord;
+      }
+      // Expand trailing/leading punctuation into spoken words
+      let result = rawWord;
+      // Handle ellipsis first
+      result = result.replace(/…/g, ' ellipsis ');
+      result = result.replace(/\.\.\./g, ' ellipsis ');
+      // Replace each punctuation char with its spoken form
+      result = result.replace(/[.,?!:;—\-()"'"']/g, ch => {
+        return PUNCT_MAP[ch] ? ' ' + PUNCT_MAP[ch] + ' ' : ' ';
+      });
+      return result.trim().replace(/\s+/g, ' ') || rawWord;
+    }
+
+    // ── BUILD SPOKEN TEXT FOR A CHUNK ────────────────────────────────────────────
+    function chunkToSpeech(chunkTokenIndices) {
+      return chunkTokenIndices.map(i => ttsText(tokens[i].text)).join(' ');
+    }
+
+    // ── PARSE TEXT → TOKENS WITH PARAGRAPH INFO ───────────────────────────────────
+    // Splits text by blank lines (paragraphs), then by whitespace within each para.
+    // Preserves paragraph structure in the token list.
+    function parseText(rawText) {
+      tokens = [];
+      chunks = [];
+      wordEls = [];
+
+      // Split into paragraphs (one or more blank lines)
+      const paras = rawText.split(/\n\s*\n+/);
+      let globalIdx = 0;
+
+      paras.forEach((para, pIdx) => {
+        const trimmed = para.trim();
+        if (!trimmed) return;
+        // Split paragraph into words (preserve spaces/newlines within para as single space)
+        const words = trimmed.split(/\s+/).filter(w => w.length > 0);
+        words.forEach((w, wIdx) => {
+          tokens.push({
+            text: w,
+            paraBreakBefore: (wIdx === 0 && pIdx > 0),
+            globalIdx,
+            chunkIdx: -1,   // filled below
+          });
+          globalIdx++;
+        });
+      });
+
+      totalWords = tokens.length;
+
+      // Build chunks
+      if (useChunks) {
+        let i = 0;
+        while (i < tokens.length) {
+          const group = [];
+          for (let j = 0; j < chunkSize && i < tokens.length; j++, i++) {
+            group.push(i);
+          }
+          const cIdx = chunks.length;
+          group.forEach(ti => tokens[ti].chunkIdx = cIdx);
+          chunks.push(group);
+        }
+      } else {
+        // One big chunk
+        const group = tokens.map((_, i) => i);
+        group.forEach(ti => tokens[ti].chunkIdx = 0);
+        chunks.push(group);
       }
     }
-  });
 
-  allWords = rawWords;
-  totalWords = wi;
-}
+    // ── RENDER DICT DISPLAY ───────────────────────────────────────────────────────
+    // Renders tokens as paragraph blocks, preserving paragraph breaks
+    function renderDictDisplay(startChunkIdx = 0) {
+      const dd = document.getElementById('dictDisplay');
+      dd.innerHTML = '';
+      wordEls = new Array(tokens.length).fill(null);
 
-function highlightRange(startIdx, endIdx, isRepeat = false) {
-  allWordEls.forEach(el => {
-    const i = parseInt(el.dataset.wi);
-    if (i < startIdx) el.className = 'w done';
-    else if (i >= startIdx && i <= endIdx) el.className = isRepeat ? 'w now' : 'w now';
-    else el.className = 'w';
-  });
-  // scroll to first word in chunk
-  if (allWordEls[startIdx]) {
-    allWordEls[startIdx].scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }
-  // flash separator before this chunk
-  document.querySelectorAll('.chunk-sep').forEach(d => d.classList.remove('active'));
-  const sep = document.getElementById(`csep-${chunkIdx - 1}`);
-  if (sep) sep.classList.add('active');
-}
+      let currentPara = null;
 
-// ── Chunk banner ──────────────────────────────────────────────────────────────
-let bannerTimer;
-function showBanner(text) {
-  const b = document.getElementById('chunkBanner');
-  b.textContent = text;
-  b.classList.add('pop');
-  clearTimeout(bannerTimer);
-  bannerTimer = setTimeout(() => b.classList.remove('pop'), 900);
-}
+      tokens.forEach((tok, i) => {
+        // Start new paragraph block?
+        if (tok.paraBreakBefore || currentPara === null) {
+          currentPara = document.createElement('div');
+          currentPara.className = 'dict-para';
+          dd.appendChild(currentPara);
+        }
 
-// ── Status UI ─────────────────────────────────────────────────────────────────
-function setStatus(state, text) {
-  document.getElementById('dot').className = 'dot ' + state;
-  document.getElementById('statusTxt').textContent = text;
-}
+        const span = document.createElement('span');
+        span.className = 'w';
+        span.textContent = tok.text + ' ';
+        span.dataset.idx = i;
+        span.dataset.chunk = tok.chunkIdx;
 
-function updateProg(spoken, total) {
-  document.getElementById('progFill').style.width = (total ? spoken / total * 100 : 0) + '%';
-  document.getElementById('metaSpoken').textContent = spoken + ' spoken';
-  document.getElementById('metaLeft').textContent = (total - spoken) + ' left';
-}
+        // Mark already-done words
+        if (tok.chunkIdx < startChunkIdx) {
+          span.classList.add('done');
+        }
 
-// ── Core speech ───────────────────────────────────────────────────────────────
-function getVoice() {
-  const name = document.getElementById('voiceSel').value;
-  return allVoices.find(v => v.name === name) || null;
-}
+        // Click-to-start handler
+        span.addEventListener('click', () => {
+          const clickedChunk = parseInt(span.dataset.chunk);
+          if (!isPlaying && !isPaused) {
+            // Not playing: set jump point and start
+            jumpToChunk = clickedChunk;
+            document.getElementById('btnPlay').click();
+          } else if (isPlaying || isPaused) {
+            // Playing: jump to that chunk
+            jumpToChunk = clickedChunk;
+            stopRequested = true;
+            synth.cancel();
+            toast('⏭ Jumping to selected word…');
+          }
+        });
 
-function speak(text, onEnd, isRepeat = false) {
-  const utter = new SpeechSynthesisUtterance(text);
-  const v = getVoice();
-  if (v) utter.voice = v;
-  utter.rate = rate;
-  utter.pitch = pitch;
+        wordEls[i] = span;
+        currentPara.appendChild(span);
+      });
 
-  if (useChunks) utter.rate = rate * 0.95;
-
-  // iOS Keep-alive: Safari sometimes pauses speech if it thinks the tab is idle.
-  // We periodically call resume() while speaking.
-  const resumeInterval = setInterval(() => {
-    if (synth.speaking) {
-      synth.pause();
-      synth.resume();
-    }
-  }, 5000);
-
-  utter.onend = () => {
-    clearInterval(resumeInterval);
-    if (onEnd) onEnd();
-  };
-  
-  utter.onerror = (e) => {
-    clearInterval(resumeInterval);
-    console.error('Speech error:', e);
-    if (e.error !== 'canceled' && e.error !== 'interrupted') {
-      if (onEnd) onEnd();
-    }
-  };
-
-  synth.speak(utter);
-  
-  // iOS Safari 15+ fix: Sometimes the 'onend' doesn't fire for very short chunks.
-  // We add a safety timeout based on the text length and rate.
-  const estimatedMs = (text.length / (rate * 0.5)) * 100 + 1000;
-  setTimeout(() => {
-    if (synth.speaking && utter.onend) {
-      // If it's still "speaking" but likely stuck
-      // utter.onend(); // Don't force it yet, but keep in mind
-    }
-  }, estimatedMs);
-
-  return utter;
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// ── Main dictation loop ───────────────────────────────────────────────────────
-async function runDictation() {
-  const text = document.getElementById('textInput').value.trim();
-  if (!text) { toast('⚠️ Enter some text first!'); return; }
-
-  synth.cancel();
-  isPlaying = true; isPaused = false;
-  spokenWords = 0; chunkIdx = 0;
-
-  // Switch display
-  document.getElementById('textInput').style.display = 'none';
-  const disp = document.getElementById('dictDisplay');
-  disp.classList.add('on');
-  buildDisplay(text);
-  updateProg(0, totalWords);
-
-  setStatus('playing', 'Dictating…');
-  setBtns(true);
-
-  for (chunkIdx = 0; chunkIdx < chunks.length; chunkIdx++) {
-    if (!isPlaying) break;
-
-    // wait while paused
-    while (isPaused) { await sleep(200); }
-    if (!isPlaying) break;
-
-    const chunk = chunks[chunkIdx];
-    const chunkText = chunk.join(' ');
-    const startIdx = chunkIdx * (parseInt(document.getElementById('chunkSize').value) || 5);
-    const endIdx = startIdx + chunk.length - 1;
-
-    // highlight chunk
-    highlightRange(startIdx, endIdx, false);
-
-    // FIRST READ
-    showBanner('▶ Reading…');
-    await new Promise(res => speak(chunkText, res, false));
-
-    if (!isPlaying) break;
-    while (isPaused) { await sleep(200); }
-
-    if (useChunks) {
-      // pause
-      await sleep(pauseDur * 1000);
-
-      while (isPaused) { await sleep(200); }
-      if (!isPlaying) break;
-
-      // REPEAT — highlight again with pulse
-      showBanner('🔁 Repeat');
-      allWordEls.slice(startIdx, endIdx + 1).forEach(el => el.className = 'w now');
-      await new Promise(res => speak(chunkText, res, true));
-
-      if (!isPlaying) break;
-      while (isPaused) { await sleep(200); }
-      // short pause after repeat
-      await sleep(pauseDur * 600);
+      document.getElementById('dictDisplay').classList.add('on');
+      document.getElementById('textInput').style.display = 'none';
+      document.getElementById('clickInfo').classList.add('on');
     }
 
-    spokenWords = endIdx + 1;
-    updateProg(spokenWords, totalWords);
-  }
+    // ── HIGHLIGHT HELPERS ─────────────────────────────────────────────────────────
+    function highlightChunk(cIdx, isRepeat = false) {
+      wordEls.forEach((el, i) => {
+        if (!el) return;
+        const ti = tokens[i];
+        el.classList.remove('now', 'repeat-now', 'start-here');
+        if (ti.chunkIdx < cIdx) el.classList.add('done');
+        else if (ti.chunkIdx === cIdx) {
+          el.classList.remove('done');
+          el.classList.add(isRepeat ? 'repeat-now' : 'now');
+        }
+      });
+      // Scroll active chunk into view
+      const firstOfChunk = wordEls[chunks[cIdx][0]];
+      if (firstOfChunk) firstOfChunk.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
-  if (isPlaying) onDone();
-}
+    function clearHighlight() {
+      wordEls.forEach(el => { if (el) el.classList.remove('now', 'repeat-now', 'start-here', 'done'); });
+    }
 
-function onDone() {
-  isPlaying = false; isPaused = false;
-  setStatus('done', '✓ Dictation complete');
-  setBtns(false);
-  allWordEls.forEach(el => el.className = 'w done');
-  updateProg(totalWords, totalWords);
-  toast('✅ All done! Great writing!', 3000);
-}
+    // ── CHUNK COUNTER ─────────────────────────────────────────────────────────────
+    function updateCounter(ci) {
+      document.getElementById('ccNow').textContent = ci + 1;
+      document.getElementById('ccTotal').textContent = chunks.length;
+      document.getElementById('chunkCounter').classList.add('on');
+    }
 
-function stopAll() {
-  isPlaying = false; isPaused = false;
-  synth.cancel();
-  setStatus('ready', 'Ready to dictate');
-  setBtns(false);
-  document.getElementById('textInput').style.display = '';
-  document.getElementById('dictDisplay').classList.remove('on');
-  updateStats();
-}
+    // ── PROGRESS BAR ─────────────────────────────────────────────────────────────
+    function updateProgress(ci) {
+      spokenWords = chunks.slice(0, ci).reduce((s, c) => s + c.length, 0);
+      const pct = totalWords > 0 ? (spokenWords / totalWords) * 100 : 0;
+      document.getElementById('progFill').style.width = pct + '%';
+      document.getElementById('metaSpoken').textContent = spokenWords + ' spoken';
+      document.getElementById('metaLeft').textContent = (totalWords - spokenWords) + ' left';
+      document.getElementById('svTotal').textContent = totalWords;
+      document.getElementById('svChunk').textContent = chunkSize;
 
-// ── Repeat current chunk ──────────────────────────────────────────────────────
-function repeatChunk() {
-  if (!isPlaying || chunkIdx >= chunks.length) return;
-  synth.cancel();
-  const chunk = chunks[chunkIdx];
-  const cs = parseInt(document.getElementById('chunkSize').value) || 5;
-  const startIdx = chunkIdx * cs;
-  const endIdx = startIdx + chunk.length - 1;
-  highlightRange(startIdx, endIdx, true);
-  showBanner('🔁 Repeat');
-  speak(chunk.join(' '), () => {});
-  toast('🔁 Repeating chunk');
-}
+      // Estimate remaining time
+      const wordsLeft = totalWords - spokenWords;
+      const avgWPS = rate * 2.2;
+      const secs = Math.round(wordsLeft / avgWPS);
+      const m = Math.floor(secs / 60), s = secs % 60;
+      document.getElementById('svTime').textContent = m + ':' + String(s).padStart(2, '0');
+    }
 
-// ── Button wiring ─────────────────────────────────────────────────────────────
-function setBtns(playing) {
-  const playBtn = document.getElementById('btnPlay');
-  if (playing) {
-    playBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> Stop';
-    playBtn.classList.add('stop-mode');
-  } else {
-    playBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Dictation';
-    playBtn.classList.remove('stop-mode');
-  }
-  ['btnPause','btnRepeat','btnPrev','btnNext'].forEach(id => {
-    document.getElementById(id).disabled = !playing;
-  });
-}
+    // ── STATUS ────────────────────────────────────────────────────────────────────
+    function setStatus(cls, txt) {
+      const dot = document.getElementById('dot');
+      dot.className = 'dot ' + cls;
+      document.getElementById('statusTxt').textContent = txt;
+    }
 
-document.getElementById('btnPlay').addEventListener('click', async () => {
-  if (isPlaying) {
-    stopAll();
-  } else {
-    // iOS GESTURE UNLOCK: All iOS browsers (Chrome/Brave/Safari) use WebKit.
-    // They REQUIRE a speech command to be fired directly in the click handler.
-    try {
-      synth.cancel(); // Clear any hung speech
-      const unlock = new SpeechSynthesisUtterance(" ");
+    // ── CHUNK BANNER ─────────────────────────────────────────────────────────────
+    function showBanner(txt, ms = 900) {
+      const b = document.getElementById('chunkBanner');
+      b.textContent = txt;
+      b.classList.add('pop');
+      setTimeout(() => b.classList.remove('pop'), ms);
+    }
+
+    // ── START ANIMATION ───────────────────────────────────────────────────────────
+    function showStartAnim(txt = 'Start!') {
+      return new Promise(resolve => {
+        const el = document.getElementById('startAnim');
+        document.getElementById('saText').textContent = txt;
+        el.classList.add('on');
+        setTimeout(() => { el.classList.remove('on'); resolve(); }, 900);
+      });
+    }
+
+    // ── STATS MODAL ───────────────────────────────────────────────────────────────
+    function showStats() {
+      const elapsed = sessionStart ? Math.round((Date.now() - sessionStart) / 1000) : 0;
+      const m = Math.floor(elapsed / 60), s = elapsed % 60;
+      const wpm = elapsed > 0 ? Math.round((spokenWords / elapsed) * 60) : 0;
+      document.getElementById('stWords').textContent = totalWords;
+      document.getElementById('stChunks').textContent = chunks.length;
+      document.getElementById('stTime').textContent = m + ':' + String(s).padStart(2, '0');
+      document.getElementById('stWPM').textContent = wpm;
+      document.getElementById('statsModal').classList.add('on');
+    }
+    document.getElementById('statsCloseBtn').addEventListener('click', () => {
+      document.getElementById('statsModal').classList.remove('on');
+    });
+
+    // ── MAIN DICTATION LOOP ───────────────────────────────────────────────────────
+    async function runDictation(startFrom = 0) {
+      // iOS Safari: fire a silent utterance inside click handler to unlock audio
+      const unlock = new SpeechSynthesisUtterance('');
       unlock.volume = 0;
       synth.speak(unlock);
-      
-      // Also resume AudioContext if it's suspended
-      if (window.AudioContext || window.webkitAudioContext) {
-        const tempCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (tempCtx.state === 'suspended') tempCtx.resume();
-      }
-    } catch(e) { console.error('Unlock error:', e); }
-    
-    runDictation();
-  }
-});
 
-document.getElementById('btnPause').addEventListener('click', () => {
-  const btn = document.getElementById('btnPause');
-  if (isPaused) {
-    isPaused = false;
-    synth.resume();
-    setStatus('playing', 'Dictating…');
-    btn.classList.remove('accent-mode');
-    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause';
-  } else {
-    isPaused = true;
-    synth.pause();
-    setStatus('paused', 'Paused');
-    btn.classList.add('accent-mode');
-    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Resume';
-  }
-});
+      isPlaying = true;
+      isPaused = false;
+      stopRequested = false;
+      sessionStart = sessionStart || Date.now();
 
-document.getElementById('btnRepeat').addEventListener('click', repeatChunk);
+      const btnPlay = document.getElementById('btnPlay');
+      const btnPause = document.getElementById('btnPause');
+      const btnRepeat = document.getElementById('btnRepeat');
+      const btnPrev = document.getElementById('btnPrev');
+      const btnNext = document.getElementById('btnNext');
 
-document.getElementById('btnNext').addEventListener('click', () => {
-  if (!isPlaying) return;
-  synth.cancel();
-  chunkIdx = Math.min(chunkIdx + 1, chunks.length - 1);
-  toast('⏭ Next chunk');
-});
+      btnPlay.classList.add('stop-mode');
+      btnPlay.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> Stop';
+      btnPause.disabled = false;
+      btnRepeat.disabled = false;
+      btnPrev.disabled = false;
+      btnNext.disabled = false;
 
-document.getElementById('btnPrev').addEventListener('click', () => {
-  if (!isPlaying) return;
-  synth.cancel();
-  chunkIdx = Math.max(0, chunkIdx - 1);
-  toast('⏮ Prev chunk');
-});
+      chunkIdx = startFrom;
 
-// ── Sliders ───────────────────────────────────────────────────────────────────
-document.getElementById('rateSlider').addEventListener('input', function() {
-  rate = parseFloat(this.value);
-  document.getElementById('rateVal').textContent = rate.toFixed(2) + '×';
-  document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('on'));
-  updateStats();
-});
-document.getElementById('pitchSlider').addEventListener('input', function() {
-  pitch = parseFloat(this.value);
-  document.getElementById('pitchVal').textContent = pitch.toFixed(1);
-});
-document.getElementById('pauseSlider').addEventListener('input', function() {
-  pauseDur = parseFloat(this.value);
-  document.getElementById('pauseVal').textContent = pauseDur.toFixed(1) + 's';
-});
-document.getElementById('chunkSize').addEventListener('input', function() {
-  chunkSize = parseInt(this.value) || 5;
-  document.getElementById('svChunk').textContent = chunkSize;
-  updateStats();
-});
-document.getElementById('chunkToggle').addEventListener('change', function() {
-  useChunks = this.checked;
-  toast(useChunks ? '✅ Repeat mode ON' : '🔇 Repeat mode OFF');
-});
+      while (chunkIdx < chunks.length) {
+        if (stopRequested) break;
 
-// ── Speed presets ─────────────────────────────────────────────────────────────
-document.querySelectorAll('.sp-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    rate = parseFloat(btn.dataset.r);
-    document.getElementById('rateSlider').value = rate;
-    document.getElementById('rateVal').textContent = rate.toFixed(2) + '×';
-    document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('on'));
-    btn.classList.add('on');
-    updateStats();
-  });
-});
-
-// ── Toolbar ───────────────────────────────────────────────────────────────────
-document.getElementById('btnPaste').addEventListener('click', async () => {
-  try {
-    const t = await navigator.clipboard.readText();
-    document.getElementById('textInput').value = t;
-    updateStats(); toast('📋 Pasted!');
-  } catch { toast('⚠️ Allow clipboard access'); }
-});
-document.getElementById('btnUpload').addEventListener('click', () => document.getElementById('fileInput').click());
-
-// ── PDF text extraction via PDF.js ───────────────────────────────────────────
-async function extractPdfText(file) {
-  try {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = '';
-    toast(`📖 Reading PDF… (${pdf.numPages} pages)`, 3000);
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      // Join items; insert newline when y-position changes significantly (paragraph detection)
-      let lastY = null;
-      let pageText = '';
-      for (const item of content.items) {
-        if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
-          pageText += '\n';
+        // Handle jump request
+        if (jumpToChunk >= 0) {
+          chunkIdx = jumpToChunk;
+          jumpToChunk = -1;
+          stopRequested = false;
         }
-        pageText += item.str + ' ';
-        lastY = item.transform[5];
+
+        // Pause check
+        while (isPaused && !stopRequested) await sleep(100);
+        if (stopRequested) break;
+
+        updateCounter(chunkIdx);
+        updateProgress(chunkIdx);
+        highlightChunk(chunkIdx, false);
+        setStatus('playing', 'Dictating chunk ' + (chunkIdx + 1) + '…');
+
+        const chunkText = chunkToSpeech(chunks[chunkIdx]);
+
+        // ── First read ──
+        await speak(chunkText, rate, pitch);
+        if (stopRequested) break;
+
+        // ── Pause between first read and repeat ──
+        await sleep(pauseDur * 1000);
+        if (stopRequested) break;
+
+        playBeep(660, 0.07);
+
+        // ── Repeat N times ──
+        for (let r = 1; r < repeatCount; r++) {
+          while (isPaused && !stopRequested) await sleep(100);
+          if (stopRequested) break;
+
+          highlightChunk(chunkIdx, true);
+          showBanner('▶ Repeat ' + r + (repeatCount > 2 ? '/' + (repeatCount - 1) : '') + '…');
+          await speak(chunkText, rate * 0.9, pitch);
+          if (stopRequested) break;
+          if (r < repeatCount - 1) {
+            await sleep(pauseDur * 700);
+            playBeep(520, 0.06);
+          }
+        }
+        if (stopRequested) break;
+
+        // Mark done
+        chunks[chunkIdx].forEach(ti => {
+          if (wordEls[ti]) { wordEls[ti].classList.remove('now', 'repeat-now'); wordEls[ti].classList.add('done'); }
+        });
+
+        await sleep(pauseDur * 1000);
+        if (stopRequested) break;
+
+        chunkIdx++;
       }
-      fullText += pageText.trim() + '\n\n';
+
+      // Handle jump-after-stop (mid-loop cancellation for chunk jump)
+      if (jumpToChunk >= 0 && !stopRequested) {
+        const jmp = jumpToChunk;
+        jumpToChunk = -1;
+        stopRequested = false;
+        resetControls(false);
+        await runDictation(jmp);
+        return;
+      }
+
+      const completed = !stopRequested && chunkIdx >= chunks.length;
+      resetControls(true);
+
+      if (completed) {
+        setStatus('done', 'Dictation complete!');
+        playBeep(880, 0.2);
+        await showStartAnim('Done! 🎉');
+        updateProgress(chunks.length);
+        showStats();
+      } else {
+        setStatus('ready', 'Stopped');
+      }
     }
-    return fullText.trim();
-  } catch (err) {
-    console.error('PDF parse error:', err);
-    throw err;
-  }
-}
 
-function loadFile(file) {
-  if (!file) return;
-  if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-    const r = new FileReader();
-    r.onload = ev => {
-      document.getElementById('textInput').value = ev.target.result;
-      updateStats();
-      toast(`📄 "${file.name}" loaded!`);
-    };
-    r.readAsText(file);
-  } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-    toast('⏳ Extracting PDF text…', 4000);
-    extractPdfText(file).then(text => {
-      if (!text) { toast('⚠️ PDF has no readable text (scanned image?)'); return; }
-      document.getElementById('textInput').value = text;
-      updateStats();
-      toast(`✅ PDF "${file.name}" loaded!`, 3000);
-    }).catch(() => toast('❌ Failed to read PDF'));
-  } else {
-    toast('⚠️ Only .txt or .pdf files supported');
-  }
-}
-
-document.getElementById('fileInput').addEventListener('change', e => {
-  loadFile(e.target.files[0]);
-  e.target.value = '';
-});
-document.getElementById('btnClear').addEventListener('click', () => {
-  if (isPlaying) stopAll();
-  document.getElementById('textInput').value = '';
-  updateStats(); toast('🗑️ Cleared');
-});
-document.getElementById('btnSample').addEventListener('click', () => {
-  document.getElementById('textInput').value = `Chapter Three: Introduction to Computer Networks.
-
-A computer network is a set of computers sharing resources located on or provided by network nodes. Computers use common communication protocols over digital interconnections to communicate with each other.
-
-The internet is the largest example of a computer network. It connects millions of private, public, academic, business and government networks.
-
-Network topology refers to the arrangement of the elements of a communication network. Common topologies include bus, star, ring, mesh, and tree.
-
-The OSI model or Open Systems Interconnection model is a conceptual framework used to describe the functions of a networking system. It has seven layers: Physical, Data Link, Network, Transport, Session, Presentation, and Application.
-
-The TCP/IP model is the conceptual model and set of communications protocols used in the internet and similar networks. It is commonly known as TCP/IP because the foundational protocols are the Transmission Control Protocol and the Internet Protocol.`;
-  updateStats(); toast('📚 Sample notes loaded!');
-});
-
-// ── Drag & Drop ───────────────────────────────────────────────────────────────
-const tz = document.getElementById('textZone');
-tz.addEventListener('dragover', e => { e.preventDefault(); document.getElementById('dropOverlay').classList.add('on'); });
-tz.addEventListener('dragleave', () => document.getElementById('dropOverlay').classList.remove('on'));
-tz.addEventListener('drop', e => {
-  e.preventDefault();
-  document.getElementById('dropOverlay').classList.remove('on');
-  loadFile(e.dataTransfer.files[0]);
-});
-
-// ── Keyboard ──────────────────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  const tag = document.activeElement.tagName;
-  if (['TEXTAREA','INPUT','SELECT'].includes(tag)) return;
-  if (e.code === 'Space') { e.preventDefault(); if (!isPlaying) runDictation(); else document.getElementById('btnPause').click(); }
-  if (e.code === 'KeyR' && isPlaying) repeatChunk();
-  if (e.code === 'Escape' && isPlaying) stopAll();
-  if (e.code === 'ArrowRight' && isPlaying) document.getElementById('btnNext').click();
-  if (e.code === 'ArrowLeft' && isPlaying) document.getElementById('btnPrev').click();
-});
-
-updateStats();
-
-// ── Start Animation ───────────────────────────────────────────────────────────
-async function runStartAnim() {
-  const overlay = document.getElementById('startAnim');
-  overlay.classList.add('on');
-  await sleep(1000);
-  overlay.classList.remove('on');
-}
-
-// ── FEATURE 3: Save & Resume Session ──────────────────────────────────────────
-function saveSession() {
-  if (!isPlaying) return;
-  localStorage.setItem('ai_dict_session', JSON.stringify({
-    text: document.getElementById('textInput').value,
-    chunkIdx, chunkSize: parseInt(document.getElementById('chunkSize').value)||5,
-    rate, pitch, pauseDur, repeatCount
-  }));
-}
-function clearSession() { localStorage.removeItem('ai_dict_session'); }
-function checkResume() {
-  const s = localStorage.getItem('ai_dict_session');
-  if (!s) return;
-  const data = JSON.parse(s);
-  if (!data.text) return;
-  if (confirm('💾 Resume your last session from where you left off?')) {
-    document.getElementById('textInput').value = data.text;
-    document.getElementById('chunkSize').value = data.chunkSize;
-    if (data.rate) { rate = data.rate; document.getElementById('rateSlider').value = rate; document.getElementById('rateVal').textContent = rate.toFixed(2)+'×'; }
-    updateStats();
-    toast('⏭️ Session restored! Press Start to resume.', 3000);
-  } else clearSession();
-}
-setInterval(saveSession, 5000);
-window.addEventListener('beforeunload', saveSession);
-checkResume();
-
-// ── FEATURE 4: Chunk Counter ───────────────────────────────────────────────────────
-function updateChunkCounter() {
-  document.getElementById('ccNow').textContent = chunkIdx + 1;
-  document.getElementById('ccTotal').textContent = chunks.length;
-  document.getElementById('chunkCounter').classList.toggle('on', isPlaying);
-}
-
-// ── FEATURE 2: Click word to jump to chunk ───────────────────────────────────────
-function attachWordClicks() {
-  allWordEls.forEach((el, idx) => {
-    el.style.cursor = 'pointer';
-    el.title = 'Jump to this chunk';
-    el.addEventListener('click', () => {
-      if (!isPlaying) return;
-      const cs = parseInt(document.getElementById('chunkSize').value)||5;
-      chunkIdx = Math.floor(idx / cs);
+    function resetControls(clearDisplay) {
+      isPlaying = false; isPaused = false; stopRequested = false;
       synth.cancel();
-      toast('🔖 Jumped to chunk ' + (chunkIdx+1));
-    });
-  });
-}
-
-// ── FEATURE 7: Stats Modal ──────────────────────────────────────────────────────────
-function showStatsModal() {
-  const elapsed = sessionStart ? Math.round((Date.now()-sessionStart)/1000) : 0;
-  const m = Math.floor(elapsed/60), s = elapsed%60;
-  const wpm = elapsed > 0 ? Math.round((totalWords / elapsed) * 60) : 0;
-  document.getElementById('stWords').textContent = totalWords;
-  document.getElementById('stChunks').textContent = chunks.length;
-  document.getElementById('stTime').textContent = m+':'+String(s).padStart(2,'0');
-  document.getElementById('stWPM').textContent = wpm;
-  document.getElementById('statsModal').classList.add('on');
-}
-document.getElementById('statsCloseBtn').addEventListener('click', () => {
-  document.getElementById('statsModal').classList.remove('on');
-  clearSession();
-});
-
-// ── FEATURE 11: Export Notes ─────────────────────────────────────────────────────────
-function exportNotes() {
-  const content = document.getElementById('writeArea').value || document.getElementById('textInput').value;
-  if (!content.trim()) { toast('⚠️ Nothing to export'); return; }
-  const blob = new Blob([content], {type:'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'ai-dictator-notes-' + new Date().toISOString().slice(0,10) + '.txt';
-  a.click();
-  toast('💾 Notes exported!');
-}
-document.getElementById('btnExport').addEventListener('click', exportNotes);
-
-// ── FEATURE 8: Focus Mode ────────────────────────────────────────────────────────────
-document.getElementById('btnFocus').addEventListener('click', () => {
-  focusMode = !focusMode;
-  document.body.classList.toggle('focus-mode', focusMode);
-  document.getElementById('btnFocus').style.color = focusMode ? 'var(--accent)' : '';
-  toast(focusMode ? '🌙 Focus mode ON' : '💡 Focus mode OFF');
-});
-
-// ── FEATURE 1: Writing Pad ────────────────────────────────────────────────────────────
-document.getElementById('btnWritePad').addEventListener('click', () => {
-  const pad = document.getElementById('writePad');
-  pad.classList.toggle('on');
-  const on = pad.classList.contains('on');
-  document.getElementById('btnWritePad').style.color = on ? 'var(--accent)' : '';
-  toast(on ? '✍️ Writing pad opened' : 'Writing pad closed');
-});
-document.getElementById('btnClearWrite').addEventListener('click', () => {
-  document.getElementById('writeArea').value = '';
-  toast('🗑️ Notes cleared');
-});
-
-// ── FEATURE 10: Sound header button ───────────────────────────────────────────────
-document.getElementById('btnSound').addEventListener('click', () => {
-  soundEnabled = !soundEnabled;
-  document.getElementById('soundToggle').checked = soundEnabled;
-  document.getElementById('btnSound').style.color = soundEnabled ? '' : 'var(--text-faint)';
-  toast(soundEnabled ? '🔔 Sound cues ON' : '🔇 Sound cues OFF');
-});
-document.getElementById('soundToggle').addEventListener('change', function() {
-  soundEnabled = this.checked;
-  document.getElementById('btnSound').style.color = soundEnabled ? '' : 'var(--text-faint)';
-});
-
-// ── FEATURE 6: Repeat Count Buttons ─────────────────────────────────────────────────
-document.querySelectorAll('.rep-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    repeatCount = parseInt(btn.dataset.rep);
-    document.querySelectorAll('.rep-btn').forEach(b => b.classList.remove('on'));
-    btn.classList.add('on');
-    toast(`🔁 Repeat ${repeatCount}× per chunk`);
-  });
-});
-
-// ── FEATURE 12: Difficulty Presets ─────────────────────────────────────────────────
-const PRESETS = {
-  exam:   { chunk:3, rate:0.55, pause:2.5, repeat:3 },
-  normal: { chunk:5, rate:0.8,  pause:1.2, repeat:1 },
-  review: { chunk:8, rate:1.1,  pause:0.8, repeat:1 },
-};
-document.querySelectorAll('.preset-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const p = PRESETS[btn.dataset.preset];
-    if (!p) return;
-    document.getElementById('chunkSize').value = p.chunk;
-    chunkSize = p.chunk;
-    rate = p.rate;
-    document.getElementById('rateSlider').value = rate;
-    document.getElementById('rateVal').textContent = rate.toFixed(2)+'×';
-    pauseDur = p.pause;
-    document.getElementById('pauseSlider').value = pauseDur;
-    document.getElementById('pauseVal').textContent = pauseDur.toFixed(1)+'s';
-    repeatCount = p.repeat;
-    document.querySelectorAll('.rep-btn').forEach(b => b.classList.toggle('on', parseInt(b.dataset.rep)===repeatCount));
-    document.querySelectorAll('.sp-btn').forEach(b => b.classList.toggle('on', parseFloat(b.dataset.r)===rate));
-    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    updateStats();
-    toast('🎯 Preset: ' + btn.dataset.preset.charAt(0).toUpperCase() + btn.dataset.preset.slice(1));
-  });
-});
-
-// ── Main Dictation Logic ────────────────────────────────────────────────────────
-async function runDictation() {
-  const text = document.getElementById('textInput').value.trim();
-  if (!text) { toast('⚠️ Enter some text first!'); return; }
-  
-  // 1-second start animation
-  await runStartAnim();
-  
-  sessionStart = Date.now();
-  synth.cancel();
-  isPlaying = true; isPaused = false;
-  spokenWords = 0; chunkIdx = 0;
-  document.getElementById('textInput').style.display = 'none';
-  const disp = document.getElementById('dictDisplay');
-  disp.classList.add('on');
-  buildDisplay(text);
-  attachWordClicks();
-  updateProg(0, totalWords);
-  updateChunkCounter();
-  setStatus('playing', 'Dictating…');
-  setBtns(true);
-  for (chunkIdx = 0; chunkIdx < chunks.length; chunkIdx++) {
-    if (!isPlaying) break;
-    while (isPaused) { await sleep(200); }
-    if (!isPlaying) break;
-    const chunk = chunks[chunkIdx];
-    const chunkText = chunk.join(' ');
-    const cs2 = parseInt(document.getElementById('chunkSize').value)||5;
-    const startIdx = chunkIdx * cs2;
-    const endIdx = startIdx + chunk.length - 1;
-    highlightRange(startIdx, endIdx, false);
-    updateChunkCounter();
-    showBanner('▶ Reading…');
-    await new Promise(res => speak(chunkText, res, false));
-    if (!isPlaying) break;
-    while (isPaused) { await sleep(200); }
-    if (useChunks) {
-      await sleep(pauseDur * 1000);
-      while (isPaused) { await sleep(200); }
-      if (!isPlaying) break;
-      for (let r = 0; r < repeatCount; r++) {
-        playChunkSound();
-        showBanner('🔁 Repeat ' + (repeatCount>1 ? (r+1)+'/'+repeatCount : ''));
-        allWordEls.slice(startIdx, endIdx+1).forEach(el => el.className='w now');
-        await new Promise(res => speak(chunkText, res, true));
-        if (!isPlaying) break;
-        while (isPaused) { await sleep(200); }
-        if (r < repeatCount-1) await sleep(pauseDur * 400);
+      const btnPlay = document.getElementById('btnPlay');
+      const btnPause = document.getElementById('btnPause');
+      const btnRepeat = document.getElementById('btnRepeat');
+      const btnPrev = document.getElementById('btnPrev');
+      const btnNext = document.getElementById('btnNext');
+      btnPlay.classList.remove('stop-mode');
+      btnPlay.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Start Dictation';
+      btnPause.disabled = true; btnRepeat.disabled = true;
+      btnPrev.disabled = true; btnNext.disabled = true;
+      document.getElementById('chunkCounter').classList.remove('on');
+      if (clearDisplay) {
+        clearHighlight();
+        document.getElementById('clickInfo').classList.remove('on');
       }
-      if (!isPlaying) break;
-      await sleep(pauseDur * 600);
     }
-    spokenWords = endIdx+1;
-    updateProg(spokenWords, totalWords);
-  }
-  if (isPlaying) {
-    isPlaying = false; isPaused = false;
-    setStatus('done', '✓ Dictation complete');
-    setBtns(false);
-    allWordEls.forEach(el => el.className='w done');
-    updateProg(totalWords, totalWords);
-    document.getElementById('chunkCounter').classList.remove('on');
-    clearSession();
-    showStatsModal();
-  }
-};
 
-function playChunkSound() {
-  if (!soundEnabled) return;
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type = 'sine'; o.frequency.value = 660;
-    g.gain.setValueAtTime(0.15, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-    o.start(); o.stop(ctx.currentTime + 0.2);
-  } catch(e) {}
-}
-</script>
+    // ── PLAY BUTTON ───────────────────────────────────────────────────────────────
+    document.getElementById('btnPlay').addEventListener('click', async () => {
+      if (isPlaying) {
+        stopRequested = true;
+        synth.cancel();
+        return;
+      }
+      const raw = document.getElementById('textInput').value.trim();
+      if (!raw) { toast('⚠️ Please enter or paste some text first!'); return; }
+
+      parseText(raw);
+      if (tokens.length === 0) { toast('⚠️ No words found in text.'); return; }
+
+      const startFrom = jumpToChunk >= 0 ? jumpToChunk : 0;
+      jumpToChunk = -1;
+
+      renderDictDisplay(startFrom);
+      await showStartAnim('Start!');
+      await runDictation(startFrom);
+    });
+
+    // ── PAUSE ─────────────────────────────────────────────────────────────────────
+    document.getElementById('btnPause').addEventListener('click', () => {
+      if (!isPlaying) return;
+      if (!isPaused) {
+        isPaused = true;
+        synth.cancel();
+        setStatus('paused', 'Paused');
+        document.getElementById('btnPause').innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Resume';
+        toast('⏸ Paused');
+      } else {
+        isPaused = false;
+        setStatus('playing', 'Resumed…');
+        document.getElementById('btnPause').innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause';
+        toast('▶ Resumed');
+      }
+    });
+
+    // ── REPEAT ────────────────────────────────────────────────────────────────────
+    document.getElementById('btnRepeat').addEventListener('click', () => {
+      if (!isPlaying) return;
+      jumpToChunk = chunkIdx;
+      stopRequested = true;
+      synth.cancel();
+      toast('🔁 Repeating chunk…');
+    });
+
+    // ── NEXT ─────────────────────────────────────────────────────────────────────
+    document.getElementById('btnNext').addEventListener('click', () => {
+      if (!isPlaying) return;
+      const target = Math.min(chunkIdx + 1, chunks.length - 1);
+      jumpToChunk = target;
+      stopRequested = true;
+      synth.cancel();
+      toast('⏭ Next chunk');
+    });
+
+    // ── PREV ─────────────────────────────────────────────────────────────────────
+    document.getElementById('btnPrev').addEventListener('click', () => {
+      if (!isPlaying) return;
+      const target = Math.max(chunkIdx - 1, 0);
+      jumpToChunk = target;
+      stopRequested = true;
+      synth.cancel();
+      toast('⏮ Previous chunk');
+    });
+
+    // ── KEYBOARD SHORTCUTS ────────────────────────────────────────────────────────
+    document.addEventListener('keydown', e => {
+      const tag = document.activeElement.tagName;
+      if (tag === 'TEXTAREA' || tag === 'INPUT' || tag === 'SELECT') return;
+      if (e.code === 'Space') { e.preventDefault(); document.getElementById('btnPause').click(); }
+      if (e.key === 'r' || e.key === 'R') document.getElementById('btnRepeat').click();
+      if (e.key === 'ArrowRight') document.getElementById('btnNext').click();
+      if (e.key === 'ArrowLeft') document.getElementById('btnPrev').click();
+      if (e.key === 'Escape') { stopRequested = true; synth.cancel(); }
+    });
+
+    // ── CHUNK SIZE ────────────────────────────────────────────────────────────────
+    document.getElementById('chunkSize').addEventListener('change', e => {
+      chunkSize = Math.max(2, Math.min(20, parseInt(e.target.value) || 5));
+      e.target.value = chunkSize;
+    });
+    document.getElementById('chunkToggle').addEventListener('change', e => {
+      useChunks = e.target.checked;
+    });
+
+    // ── PAUSE SLIDER ──────────────────────────────────────────────────────────────
+    document.getElementById('pauseSlider').addEventListener('input', e => {
+      pauseDur = parseFloat(e.target.value);
+      document.getElementById('pauseVal').textContent = pauseDur.toFixed(1) + 's';
+    });
+
+    // ── REPEAT BUTTONS ────────────────────────────────────────────────────────────
+    document.querySelectorAll('.rep-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.rep-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        repeatCount = parseInt(btn.dataset.rep);
+      });
+    });
+
+    // ── SPEED BUTTONS ─────────────────────────────────────────────────────────────
+    document.querySelectorAll('.sp-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        rate = parseFloat(btn.dataset.r);
+        document.getElementById('rateSlider').value = rate;
+        document.getElementById('rateVal').textContent = rate.toFixed(2) + '×';
+      });
+    });
+    document.getElementById('rateSlider').addEventListener('input', e => {
+      rate = parseFloat(e.target.value);
+      document.getElementById('rateVal').textContent = rate.toFixed(2) + '×';
+      document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('on'));
+    });
+
+    // ── PITCH ─────────────────────────────────────────────────────────────────────
+    document.getElementById('pitchSlider').addEventListener('input', e => {
+      pitch = parseFloat(e.target.value);
+      document.getElementById('pitchVal').textContent = pitch.toFixed(2);
+    });
+
+    // ── SOUND TOGGLE ──────────────────────────────────────────────────────────────
+    document.getElementById('soundToggle').addEventListener('change', e => { soundEnabled = e.target.checked; });
+    document.getElementById('btnSound').addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundToggle').checked = soundEnabled;
+      toast(soundEnabled ? '🔔 Sound cues ON' : '🔕 Sound cues OFF');
+      document.getElementById('btnSound').style.opacity = soundEnabled ? '1' : '0.4';
+    });
+
+    // ── PUNCTUATION TOGGLE ────────────────────────────────────────────────────────
+    document.getElementById('punctToggle').addEventListener('change', e => {
+      sayPunctuation = e.target.checked;
+      toast(sayPunctuation ? '📍 Punctuation will be spoken' : '📍 Punctuation muted');
+    });
+
+    // ── PRESETS ───────────────────────────────────────────────────────────────────
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const p = btn.dataset.preset;
+        if (p === 'exam') {
+          chunkSize = 3; rate = 0.55; repeatCount = 3;
+          document.getElementById('chunkSize').value = 3;
+          document.getElementById('rateSlider').value = 0.55;
+          document.getElementById('rateVal').textContent = '0.55×';
+          document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('on'));
+          document.querySelector('.sp-btn[data-r="0.55"]').classList.add('on');
+          document.querySelectorAll('.rep-btn').forEach(b => b.classList.remove('on'));
+          document.querySelector('.rep-btn[data-rep="3"]').classList.add('on');
+        } else if (p === 'normal') {
+          chunkSize = 5; rate = 0.8; repeatCount = 1;
+          document.getElementById('chunkSize').value = 5;
+          document.getElementById('rateSlider').value = 0.8;
+          document.getElementById('rateVal').textContent = '0.80×';
+          document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('on'));
+          document.querySelector('.sp-btn[data-r="0.8"]').classList.add('on');
+          document.querySelectorAll('.rep-btn').forEach(b => b.classList.remove('on'));
+          document.querySelector('.rep-btn[data-rep="1"]').classList.add('on');
+        } else if (p === 'review') {
+          chunkSize = 8; rate = 1.1; repeatCount = 1;
+          document.getElementById('chunkSize').value = 8;
+          document.getElementById('rateSlider').value = 1.1;
+          document.getElementById('rateVal').textContent = '1.10×';
+          document.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('on'));
+          document.querySelectorAll('.rep-btn').forEach(b => b.classList.remove('on'));
+          document.querySelector('.rep-btn[data-rep="1"]').classList.add('on');
+        }
+        toast('✅ Preset applied: ' + p);
+      });
+    });
+
+    // ── PASTE ─────────────────────────────────────────────────────────────────────
+    document.getElementById('btnPaste').addEventListener('click', async () => {
+      try {
+        const txt = await navigator.clipboard.readText();
+        document.getElementById('textInput').value = txt;
+        toast('📋 Text pasted!');
+      } catch { toast('⚠️ Clipboard access denied. Paste manually (Ctrl+V).'); }
+    });
+
+    // ── SAMPLE TEXT ───────────────────────────────────────────────────────────────
+    document.getElementById('btnSample').addEventListener('click', () => {
+      document.getElementById('textInput').value =
+        `The water cycle, also known as the hydrological cycle, describes the continuous movement of water on, above, and below the surface of the Earth.
+
+Water evaporates from the surface of the ocean, rises into the atmosphere, cools and condenses into clouds, and falls back to the surface as precipitation.
+
+The cycle has no beginning or end, and it keeps our planet's water supply in constant motion. Energy from the Sun drives the cycle, causing water to evaporate.
+
+Transpiration from plants also adds water vapour to the atmosphere. Together, evaporation and transpiration are called evapotranspiration.
+
+When precipitation falls over land, some of it seeps into the ground to form groundwater. The rest flows as runoff into rivers and lakes, eventually returning to the ocean.`;
+      toast('📄 Sample text loaded!');
+    });
+
+    // ── CLEAR ─────────────────────────────────────────────────────────────────────
+    document.getElementById('btnClear').addEventListener('click', () => {
+      document.getElementById('textInput').value = '';
+      document.getElementById('dictDisplay').classList.remove('on');
+      document.getElementById('dictDisplay').innerHTML = '';
+      document.getElementById('textInput').style.display = '';
+      document.getElementById('clickInfo').classList.remove('on');
+      document.getElementById('chunkCounter').classList.remove('on');
+      stopRequested = true; synth.cancel();
+      resetControls(true);
+      setStatus('', 'Ready to dictate');
+      tokens = []; chunks = []; wordEls = [];
+      document.getElementById('progFill').style.width = '0%';
+      document.getElementById('metaSpoken').textContent = '0 spoken';
+      document.getElementById('metaLeft').textContent = '0 left';
+      document.getElementById('svTotal').textContent = '0';
+      toast('🗑 Cleared');
+    });
+
+    // ── UPLOAD FILE ───────────────────────────────────────────────────────────────
+    document.getElementById('btnUpload').addEventListener('click', () => document.getElementById('fileInput').click());
+    document.getElementById('fileInput').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.name.endsWith('.txt')) {
+        const reader = new FileReader();
+        reader.onload = ev => { document.getElementById('textInput').value = ev.target.result; toast('📄 File loaded!'); };
+        reader.readAsText(file);
+      } else if (file.name.endsWith('.pdf') || file.type === 'application/pdf') {
+        loadPDF(file);
+      }
+      e.target.value = '';
+    });
+
+    async function loadPDF(file) {
+      toast('⏳ Reading PDF…');
+      try {
+        const ab = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+        let out = '';
+        let prevY = null;
+        for (let p = 1; p <= pdf.numPages; p++) {
+          const page = await pdf.getPage(p);
+          const tc = await page.getTextContent();
+          let pageText = '';
+          let lastY = null;
+          tc.items.forEach(item => {
+            const y = item.transform[5];
+            if (lastY !== null && Math.abs(y - lastY) > 12) {
+              // Significant y-gap = new line
+              pageText += '\n';
+            }
+            pageText += item.str;
+            lastY = y;
+          });
+          // Detect paragraph breaks: two+ newlines
+          out += pageText.replace(/\n{2,}/g, '\n\n') + '\n\n';
+        }
+        document.getElementById('textInput').value = out.trim();
+        toast('✅ PDF loaded (' + pdf.numPages + ' pages)');
+      } catch (err) {
+        toast('❌ Could not read PDF: ' + err.message);
+      }
+    }
+
+    // ── DRAG AND DROP ─────────────────────────────────────────────────────────────
+    const textZone = document.getElementById('textZone');
+    const dropOverlay = document.getElementById('dropOverlay');
+    textZone.addEventListener('dragover', e => { e.preventDefault(); dropOverlay.classList.add('on'); });
+    textZone.addEventListener('dragleave', e => { if (!textZone.contains(e.relatedTarget)) dropOverlay.classList.remove('on'); });
+    textZone.addEventListener('drop', e => {
+      e.preventDefault(); dropOverlay.classList.remove('on');
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      if (file.name.endsWith('.txt')) {
+        const r = new FileReader();
+        r.onload = ev => { document.getElementById('textInput').value = ev.target.result; toast('📄 File dropped!'); };
+        r.readAsText(file);
+      } else if (file.name.endsWith('.pdf') || file.type === 'application/pdf') {
+        loadPDF(file);
+      } else { toast('⚠️ Only .txt and .pdf files supported'); }
+    });
+
+    // ── EXPORT ────────────────────────────────────────────────────────────────────
+    document.getElementById('btnExport').addEventListener('click', () => {
+      const notes = document.getElementById('writeArea').value.trim();
+      const src = document.getElementById('textInput').value.trim();
+      const content = notes || src;
+      if (!content) { toast('⚠️ Nothing to export!'); return; }
+      const now = new Date();
+      const fname = 'notes-' + now.toISOString().slice(0, 10) + '.txt';
+      const blob = new Blob([content], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fname;
+      a.click();
+      toast('💾 Exported as ' + fname);
+    });
+
+    // ── FOCUS MODE ────────────────────────────────────────────────────────────────
+    document.getElementById('btnFocus').addEventListener('click', () => {
+      focusMode = !focusMode;
+      document.body.classList.toggle('focus-mode', focusMode);
+      toast(focusMode ? '🎯 Focus mode ON' : '🎯 Focus mode OFF');
+    });
+
+    // ── WRITING PAD ───────────────────────────────────────────────────────────────
+    document.getElementById('btnWritePad').addEventListener('click', () => {
+      const pad = document.getElementById('writePad');
+      pad.classList.toggle('on');
+      toast(pad.classList.contains('on') ? '✍️ Writing pad opened' : '✍️ Writing pad closed');
+    });
+    document.getElementById('btnClearWrite').addEventListener('click', () => {
+      document.getElementById('writeArea').value = '';
+      toast('🗑 Notes cleared');
+    });
+
+    // ── SESSION AUTO-SAVE (localStorage guarded) ─────────────────────────────────
+    function trySave() {
+      try {
+        const data = {
+          text: document.getElementById('textInput').value,
+          notes: document.getElementById('writeArea').value,
+          ts: Date.now()
+        };
+        localStorage.setItem('ai_dictator_session', JSON.stringify(data));
+      } catch (e) { }
+    }
+    function tryRestore() {
+      try {
+        const raw = localStorage.getItem('ai_dictator_session');
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        const age = Date.now() - (data.ts || 0);
+        if (age > 86400000) return;
+        if (data.text && data.text.trim()) {
+          if (confirm('Resume previous session?')) {
+            document.getElementById('textInput').value = data.text || '';
+            document.getElementById('writeArea').value = data.notes || '';
+            toast('✅ Session restored!');
+          }
+        }
+      } catch (e) { }
+    }
+    setInterval(trySave, 5000);
+    window.addEventListener('beforeunload', trySave);
+    tryRestore();
+  </script>
 </body>
+
 </html>
