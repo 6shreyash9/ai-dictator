@@ -1264,53 +1264,6 @@
       display: block;
     }
 
-    /* WRITING PAD */
-    .write-zone {
-      display: none;
-      flex-direction: column;
-      border-top: 2px solid var(--accent-dim);
-      background: var(--surface);
-    }
-
-    .write-zone.on {
-      display: flex;
-    }
-
-    .write-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 20px;
-      border-bottom: 1px solid var(--border-soft);
-      background: var(--surface);
-    }
-
-    .write-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-faint);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
-
-    #writeArea {
-      width: 100%;
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      resize: none;
-      padding: 20px 24px;
-      font-size: 16px;
-      line-height: 1.75;
-      color: var(--text);
-      min-height: 140px;
-    }
-
-    #writeArea::placeholder {
-      color: var(--text-faint);
-    }
-
     /* FOCUS MODE */
     body.focus-mode .right-panel {
       display: none;
@@ -1472,13 +1425,7 @@
           <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
         </svg>
       </button>
-            <button class="icon-btn" id="btnWritePad" title="Toggle writing pad" aria-label="Writing pad">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 20h9" />
-          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-        </svg>
-      </button>
-      <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+                  <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
@@ -1539,15 +1486,6 @@ TIP: After starting, click any word to jump to that position!"></textarea>
         <div id="clickInfo">👆 Click any word to start dictation from that point</div>
         <div id="editInfo">✏️ Edit mode ON - Click Edit button again to exit and continue dictation</div>
       </div>
-
-      <div class="write-zone" id="writePad">
-        <div class="write-toolbar">
-          <span class="write-title">✍️ Your Notes</span>
-          <button class="tb-btn" id="btnClearWrite" style="font-size:12px;padding:4px 10px">Clear</button>
-        </div>
-        <textarea id="writeArea" placeholder="Write down what you hear here…"></textarea>
-      </div>
-    </div>
 
     <div class="right-panel">
       <div class="rpanel-section">
@@ -2538,9 +2476,7 @@ When precipitation falls over land, some of it seeps into the ground to form gro
 
     // ── EXPORT ────────────────────────────────────────────────────────────────────
     document.getElementById('btnExport').addEventListener('click', () => {
-      const notes = document.getElementById('writeArea').value.trim();
-      const src = document.getElementById('textInput').value.trim();
-      const content = notes || src;
+      const content = document.getElementById('textInput').value.trim();
       if (!content) { toast('⚠️ Nothing to export!'); return; }
       const now = new Date();
       const fname = 'notes-' + now.toISOString().slice(0, 10) + '.txt';
@@ -2559,23 +2495,11 @@ When precipitation falls over land, some of it seeps into the ground to form gro
       toast(focusMode ? '🎯 Focus mode ON' : '🎯 Focus mode OFF');
     });
 
-    // ── WRITING PAD ───────────────────────────────────────────────────────────────
-    document.getElementById('btnWritePad').addEventListener('click', () => {
-      const pad = document.getElementById('writePad');
-      pad.classList.toggle('on');
-      toast(pad.classList.contains('on') ? '✍️ Writing pad opened' : '✍️ Writing pad closed');
-    });
-    document.getElementById('btnClearWrite').addEventListener('click', () => {
-      document.getElementById('writeArea').value = '';
-      toast('🗑 Notes cleared');
-    });
-
     // ── SESSION AUTO-SAVE (localStorage guarded) ─────────────────────────────────
     function trySave() {
       try {
         const data = {
           text: document.getElementById('textInput').value,
-          notes: document.getElementById('writeArea').value,
           ts: Date.now()
         };
         localStorage.setItem('ai_dictator_session', JSON.stringify(data));
@@ -2591,7 +2515,6 @@ When precipitation falls over land, some of it seeps into the ground to form gro
         if (data.text && data.text.trim()) {
           if (confirm('Resume previous session?')) {
             document.getElementById('textInput').value = data.text || '';
-            document.getElementById('writeArea').value = data.notes || '';
             toast('✅ Session restored!');
           }
         }
