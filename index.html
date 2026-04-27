@@ -292,13 +292,18 @@
 
     /* DICTATION DISPLAY — paragraph-aware */
     #dictDisplay {
-      display: none;
+      display: none !important;
       position: absolute;
       inset: 0;
       padding: 32px;
       overflow-y: auto;
       font-size: 20px;
       line-height: 1.9;
+    }
+
+    /* Ensure text input is always visible initially */
+    #textInput {
+      display: block !important;
     }
 
     #dictDisplay.on {
@@ -393,75 +398,6 @@
       opacity: 1;
       transform: scale(1.6);
       box-shadow: 0 0 8px var(--accent-glow);
-    }
-
-    /* EDIT MODE */
-    #dictDisplay.edit-mode {
-      cursor: text;
-      padding: 28px;
-      font-size: 18px;
-      line-height: 1.7;
-    }
-
-    #dictDisplay.edit-mode .dict-para {
-      margin-bottom: 1.2em;
-    }
-
-    #dictDisplay.edit-mode .w {
-      display: inline;
-      padding: 0;
-      border-radius: 0;
-      transition: none;
-      cursor: text;
-      user-select: text;
-    }
-
-    #dictDisplay.edit-mode .w:hover {
-      background: transparent;
-    }
-
-    #dictDisplay.edit-mode .w.done,
-    #dictDisplay.edit-mode .w.now,
-    #dictDisplay.edit-mode .w.repeat-now,
-    #dictDisplay.edit-mode .w.start-here {
-      background: transparent;
-      color: var(--text);
-      font-weight: normal;
-      border-radius: 0;
-      outline: none;
-    }
-
-    .btn-sec.edit-mode {
-      background: var(--surface-3);
-      color: var(--accent);
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-dim);
-    }
-
-    .btn-sec.edit-mode:hover {
-      background: var(--accent-dim);
-      transform: translateY(-1px);
-    }
-
-    /* EDIT INFO BAR */
-    #editInfo {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: var(--accent-dim);
-      border-bottom: 1px solid var(--accent);
-      padding: 8px 16px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent);
-      text-align: center;
-      display: none;
-      z-index: 15;
-    }
-
-    #editInfo.on {
-      display: block;
     }
 
     /* drop zone */
@@ -1264,6 +1200,53 @@
       display: block;
     }
 
+    /* WRITING PAD */
+    .write-zone {
+      display: none;
+      flex-direction: column;
+      border-top: 2px solid var(--accent-dim);
+      background: var(--surface);
+    }
+
+    .write-zone.on {
+      display: flex;
+    }
+
+    .write-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px;
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--surface);
+    }
+
+    .write-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    #writeArea {
+      width: 100%;
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      padding: 20px 24px;
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text);
+      min-height: 140px;
+    }
+
+    #writeArea::placeholder {
+      color: var(--text-faint);
+    }
+
     /* FOCUS MODE */
     body.focus-mode .right-panel {
       display: none;
@@ -1425,7 +1408,13 @@
           <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
         </svg>
       </button>
-                  <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+      <button class="icon-btn" id="btnWritePad" title="Toggle writing pad" aria-label="Writing pad">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+      </button>
+      <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
@@ -1484,8 +1473,16 @@ TIP: After starting, click any word to jump to that position!"></textarea>
         <div id="chunkBanner">▶ Repeat...</div>
         <div id="chunkCounter">Chunk <span id="ccNow">1</span> / <span id="ccTotal">1</span></div>
         <div id="clickInfo">👆 Click any word to start dictation from that point</div>
-        <div id="editInfo">✏️ Edit mode ON - Click Edit button again to exit and continue dictation</div>
       </div>
+
+      <div class="write-zone" id="writePad">
+        <div class="write-toolbar">
+          <span class="write-title">✍️ Your Notes</span>
+          <button class="tb-btn" id="btnClearWrite" style="font-size:12px;padding:4px 10px">Clear</button>
+        </div>
+        <textarea id="writeArea" placeholder="Write down what you hear here…"></textarea>
+      </div>
+    </div>
 
     <div class="right-panel">
       <div class="rpanel-section">
@@ -1531,14 +1528,6 @@ TIP: After starting, click any word to jump to that position!"></textarea>
             Next
           </button>
         </div>
-        <div style="height:8px"></div>
-        <button class="btn-sec accent-mode" id="btnEdit" style="width:100%;justify-content:center">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-          </svg>
-          Edit Text While Dictating
-        </button>
       </div>
 
       <div class="rpanel-section">
@@ -1746,7 +1735,6 @@ TIP: After starting, click any word to jump to that position!"></textarea>
     let soundEnabled = true;
     let sayPunctuation = true;
     let focusMode = false;
-    let editMode = false;
     let sessionStart = null;
     let stopRequested = false;
     let jumpToChunk = -1;  // for click-to-start
@@ -2476,7 +2464,9 @@ When precipitation falls over land, some of it seeps into the ground to form gro
 
     // ── EXPORT ────────────────────────────────────────────────────────────────────
     document.getElementById('btnExport').addEventListener('click', () => {
-      const content = document.getElementById('textInput').value.trim();
+      const notes = document.getElementById('writeArea').value.trim();
+      const src = document.getElementById('textInput').value.trim();
+      const content = notes || src;
       if (!content) { toast('⚠️ Nothing to export!'); return; }
       const now = new Date();
       const fname = 'notes-' + now.toISOString().slice(0, 10) + '.txt';
@@ -2495,11 +2485,23 @@ When precipitation falls over land, some of it seeps into the ground to form gro
       toast(focusMode ? '🎯 Focus mode ON' : '🎯 Focus mode OFF');
     });
 
+    // ── WRITING PAD ───────────────────────────────────────────────────────────────
+    document.getElementById('btnWritePad').addEventListener('click', () => {
+      const pad = document.getElementById('writePad');
+      pad.classList.toggle('on');
+      toast(pad.classList.contains('on') ? '✍️ Writing pad opened' : '✍️ Writing pad closed');
+    });
+    document.getElementById('btnClearWrite').addEventListener('click', () => {
+      document.getElementById('writeArea').value = '';
+      toast('🗑 Notes cleared');
+    });
+
     // ── SESSION AUTO-SAVE (localStorage guarded) ─────────────────────────────────
     function trySave() {
       try {
         const data = {
           text: document.getElementById('textInput').value,
+          notes: document.getElementById('writeArea').value,
           ts: Date.now()
         };
         localStorage.setItem('ai_dictator_session', JSON.stringify(data));
@@ -2515,162 +2517,22 @@ When precipitation falls over land, some of it seeps into the ground to form gro
         if (data.text && data.text.trim()) {
           if (confirm('Resume previous session?')) {
             document.getElementById('textInput').value = data.text || '';
+            document.getElementById('writeArea').value = data.notes || '';
             toast('✅ Session restored!');
           }
         }
       } catch (e) { }
     }
+    // Reset display state on page load to ensure text input is visible
+    document.getElementById('dictDisplay').classList.remove('on');
+    document.getElementById('dictDisplay').innerHTML = '';
+    document.getElementById('textInput').style.display = 'block';
+    document.getElementById('clickInfo').classList.remove('on');
+    document.getElementById('chunkCounter').classList.remove('on');
+
     setInterval(trySave, 5000);
     window.addEventListener('beforeunload', trySave);
     tryRestore();
-
-    // ── EDIT MODE ─────────────────────────────────────────────────────────────────
-    function toggleEditMode() {
-      if (!isPlaying && !isPaused) {
-        toast('⚠️ Start dictation first to enable edit mode');
-        return;
-      }
-
-      editMode = !editMode;
-      const dictDisplay = document.getElementById('dictDisplay');
-      const editBtn = document.getElementById('btnEdit');
-      const editInfo = document.getElementById('editInfo');
-      const clickInfo = document.getElementById('clickInfo');
-
-      if (editMode) {
-        // Enter edit mode
-        dictDisplay.classList.add('edit-mode');
-        editBtn.classList.add('edit-mode');
-        editBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg> Exit Edit Mode';
-        editInfo.classList.add('on');
-        clickInfo.classList.remove('on');
-        
-        // Make content editable
-        dictDisplay.contentEditable = true;
-        
-        // Save current position and pause dictation
-        if (isPlaying && !isPaused) {
-          document.getElementById('btnPause').click();
-        }
-        
-        toast('✏️ Edit mode ON - You can now edit the text');
-      } else {
-        // Exit edit mode
-        dictDisplay.classList.remove('edit-mode');
-        editBtn.classList.remove('edit-mode');
-        editBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg> Edit Text While Dictating';
-        editInfo.classList.remove('on');
-        clickInfo.classList.add('on');
-        
-        // Make content non-editable
-        dictDisplay.contentEditable = false;
-        
-        // Update text from edited content
-        updateTextFromDisplay();
-        
-        // Re-attach click handlers to word spans after editing
-        setTimeout(() => {
-          attachWordClickHandlers();
-        }, 100);
-        
-        toast('🔊 Edit mode OFF - Dictation text updated');
-      }
-    }
-
-    function updateTextFromDisplay() {
-      const dictDisplay = document.getElementById('dictDisplay');
-      const editedText = dictDisplay.innerText || dictDisplay.textContent;
-      
-      if (editedText.trim()) {
-        // Update the hidden textarea
-        document.getElementById('textInput').value = editedText.trim();
-        
-        // Reparse the text to update tokens and chunks
-        const currentChunk = chunkIdx; // Remember current position
-        parseText(editedText.trim());
-        
-        // Adjust chunk position if needed
-        if (currentChunk < chunks.length) {
-          chunkIdx = currentChunk;
-        } else {
-          chunkIdx = Math.max(0, chunks.length - 1);
-        }
-        
-        // Update progress without re-rendering (to preserve edited content)
-        updateProgress(chunkIdx);
-        
-        // Update word highlighting without full re-render
-        if (!editMode && tokens.length > 0) {
-          updateWordHighlighting();
-        }
-      }
-    }
-
-    function updateWordHighlighting() {
-      const dictDisplay = document.getElementById('dictDisplay');
-      const wordSpans = dictDisplay.querySelectorAll('.w');
-      
-      wordSpans.forEach((span, index) => {
-        if (index < tokens.length) {
-          const token = tokens[index];
-          span.className = 'w';
-          span.dataset.idx = index;
-          span.dataset.chunk = token.chunkIdx;
-          
-          // Apply appropriate styling based on chunk position
-          if (token.chunkIdx < chunkIdx) {
-            span.classList.add('done');
-          } else if (token.chunkIdx === chunkIdx) {
-            span.classList.add('now');
-          }
-        }
-      });
-    }
-
-    function attachWordClickHandlers() {
-      const dictDisplay = document.getElementById('dictDisplay');
-      const wordSpans = dictDisplay.querySelectorAll('.w');
-      
-      wordSpans.forEach((span) => {
-        // Remove existing listeners to avoid duplicates
-        span.replaceWith(span.cloneNode(true));
-      });
-      
-      // Re-add click handlers to fresh spans
-      const freshSpans = dictDisplay.querySelectorAll('.w');
-      freshSpans.forEach((span) => {
-        span.addEventListener('click', () => {
-          const clickedChunk = parseInt(span.dataset.chunk);
-          if (!isPlaying && !isPaused) {
-            // Not playing: set jump point and start
-            jumpToChunk = clickedChunk;
-            document.getElementById('btnPlay').click();
-          } else if (isPlaying || isPaused) {
-            // Playing: jump to that chunk
-            jumpToChunk = clickedChunk;
-            stopRequested = true;
-            synth.cancel();
-            toast('⏭ Jumping to selected word…');
-          }
-        });
-      });
-    }
-
-    // Add edit button event listener
-    document.getElementById('btnEdit').addEventListener('click', toggleEditMode);
-
-    // Handle Enter key in edit mode to continue dictation
-    document.getElementById('dictDisplay').addEventListener('keydown', (e) => {
-      if (editMode && e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        toggleEditMode();
-        // Resume dictation if it was paused
-        if (isPaused) {
-          document.getElementById('btnPause').click();
-        }
-      }
-    });
-
   </script>
 </body>
 
