@@ -292,18 +292,13 @@
 
     /* DICTATION DISPLAY — paragraph-aware */
     #dictDisplay {
-      display: none !important;
+      display: none;
       position: absolute;
       inset: 0;
       padding: 32px;
       overflow-y: auto;
       font-size: 20px;
       line-height: 1.9;
-    }
-
-    /* Ensure text input is always visible initially */
-    #textInput {
-      display: block !important;
     }
 
     #dictDisplay.on {
@@ -698,7 +693,6 @@
 
     input[type=range] {
       -webkit-appearance: none;
-      appearance: none;
       width: 100%;
       height: 6px;
       background: var(--surface-4);
@@ -1721,8 +1715,8 @@ TIP: After starting, click any word to jump to that position!"></textarea>
       '"': 'quote',
       '"': 'quote',
       '"': 'quote',
-      "'": 'apostrophe',
-      '…': 'ellipsis',
+      ''': 'apostrophe',
+  '…': 'ellipsis',
     };
 
     // ── CORE STATE ───────────────────────────────────────────────────────────────
@@ -2523,13 +2517,6 @@ When precipitation falls over land, some of it seeps into the ground to form gro
         }
       } catch (e) { }
     }
-    // Reset display state on page load to ensure text input is visible
-    document.getElementById('dictDisplay').classList.remove('on');
-    document.getElementById('dictDisplay').innerHTML = '';
-    document.getElementById('textInput').style.display = 'block';
-    document.getElementById('clickInfo').classList.remove('on');
-    document.getElementById('chunkCounter').classList.remove('on');
-
     setInterval(trySave, 5000);
     window.addEventListener('beforeunload', trySave);
     tryRestore();
