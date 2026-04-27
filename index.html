@@ -395,6 +395,73 @@
       box-shadow: 0 0 8px var(--accent-glow);
     }
 
+    /* EDIT MODE */
+    #dictDisplay.edit-mode {
+      cursor: text;
+      padding: 28px;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    #dictDisplay.edit-mode .dict-para {
+      margin-bottom: 1.2em;
+    }
+
+    #dictDisplay.edit-mode .w {
+      display: inline;
+      padding: 0;
+      border-radius: 0;
+      transition: none;
+      cursor: text;
+      user-select: text;
+    }
+
+    #dictDisplay.edit-mode .w:hover {
+      background: transparent;
+    }
+
+    #dictDisplay.edit-mode .w.done,
+    #dictDisplay.edit-mode .w.now,
+    #dictDisplay.edit-mode .w.repeat-now,
+    #dictDisplay.edit-mode .w.start-here {
+      background: transparent;
+      color: var(--text);
+      font-weight: normal;
+      border-radius: 0;
+      outline: none;
+    }
+
+    .icon-btn.edit-mode {
+      background: var(--accent);
+      color: #0b0a09;
+    }
+
+    .icon-btn.edit-mode:hover {
+      background: var(--accent-hover);
+      transform: scale(1.05);
+    }
+
+    /* EDIT INFO BAR */
+    #editInfo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--accent-dim);
+      border-bottom: 1px solid var(--accent);
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      text-align: center;
+      display: none;
+      z-index: 15;
+    }
+
+    #editInfo.on {
+      display: block;
+    }
+
     /* drop zone */
     .drop-overlay {
       position: absolute;
@@ -1403,6 +1470,12 @@
           <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
         </svg>
       </button>
+      <button class="icon-btn" id="btnEdit" title="Edit text while dictating" aria-label="Edit mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      </button>
       <button class="icon-btn" id="btnWritePad" title="Toggle writing pad" aria-label="Writing pad">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 20h9" />
@@ -1468,6 +1541,7 @@ TIP: After starting, click any word to jump to that position!"></textarea>
         <div id="chunkBanner">▶ Repeat...</div>
         <div id="chunkCounter">Chunk <span id="ccNow">1</span> / <span id="ccTotal">1</span></div>
         <div id="clickInfo">👆 Click any word to start dictation from that point</div>
+        <div id="editInfo">✏️ Edit mode ON - Click Edit button again to exit and continue dictation</div>
       </div>
 
       <div class="write-zone" id="writePad">
@@ -1730,6 +1804,7 @@ TIP: After starting, click any word to jump to that position!"></textarea>
     let soundEnabled = true;
     let sayPunctuation = true;
     let focusMode = false;
+    let editMode = false;
     let sessionStart = null;
     let stopRequested = false;
     let jumpToChunk = -1;  // for click-to-start
@@ -2521,6 +2596,95 @@ When precipitation falls over land, some of it seeps into the ground to form gro
     setInterval(trySave, 5000);
     window.addEventListener('beforeunload', trySave);
     tryRestore();
+
+    // ── EDIT MODE ─────────────────────────────────────────────────────────────────
+    function toggleEditMode() {
+      if (!isPlaying && !isPaused) {
+        toast('⚠️ Start dictation first to enable edit mode');
+        return;
+      }
+
+      editMode = !editMode;
+      const dictDisplay = document.getElementById('dictDisplay');
+      const editBtn = document.getElementById('btnEdit');
+      const editInfo = document.getElementById('editInfo');
+      const clickInfo = document.getElementById('clickInfo');
+
+      if (editMode) {
+        // Enter edit mode
+        dictDisplay.classList.add('edit-mode');
+        editBtn.classList.add('edit-mode');
+        editInfo.classList.add('on');
+        clickInfo.classList.remove('on');
+        
+        // Make content editable
+        dictDisplay.contentEditable = true;
+        
+        // Save current position and pause dictation
+        if (isPlaying && !isPaused) {
+          document.getElementById('btnPause').click();
+        }
+        
+        toast('✏️ Edit mode ON - You can now edit the text');
+      } else {
+        // Exit edit mode
+        dictDisplay.classList.remove('edit-mode');
+        editBtn.classList.remove('edit-mode');
+        editInfo.classList.remove('on');
+        clickInfo.classList.add('on');
+        
+        // Make content non-editable
+        dictDisplay.contentEditable = false;
+        
+        // Update text from edited content
+        updateTextFromDisplay();
+        
+        toast('🔊 Edit mode OFF - Dictation text updated');
+      }
+    }
+
+    function updateTextFromDisplay() {
+      const dictDisplay = document.getElementById('dictDisplay');
+      const editedText = dictDisplay.innerText || dictDisplay.textContent;
+      
+      if (editedText.trim()) {
+        // Update the hidden textarea
+        document.getElementById('textInput').value = editedText.trim();
+        
+        // Reparse the text to update tokens and chunks
+        const currentChunk = chunkIdx; // Remember current position
+        parseText(editedText.trim());
+        
+        // Adjust chunk position if needed
+        if (currentChunk < chunks.length) {
+          chunkIdx = currentChunk;
+        } else {
+          chunkIdx = Math.max(0, chunks.length - 1);
+        }
+        
+        // Re-render display to maintain visual consistency
+        if (!editMode) {
+          renderDictDisplay(chunkIdx);
+          updateProgress(chunkIdx);
+        }
+      }
+    }
+
+    // Add edit button event listener
+    document.getElementById('btnEdit').addEventListener('click', toggleEditMode);
+
+    // Handle Enter key in edit mode to continue dictation
+    document.getElementById('dictDisplay').addEventListener('keydown', (e) => {
+      if (editMode && e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        toggleEditMode();
+        // Resume dictation if it was paused
+        if (isPaused) {
+          document.getElementById('btnPause').click();
+        }
+      }
+    });
+
   </script>
 </body>
 
