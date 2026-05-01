@@ -121,17 +121,19 @@
     // ── EXPAND PUNCTUATION for TTS ────────────────────────────────────────────────
     // Takes a word token's text and returns TTS-ready string
     function ttsText(rawWord) {
+      // Remove underscores so they aren't spoken
+      let result = rawWord.replace(/_/g, ' ');
+
       if (!sayPunctuation) {
         // Strip trailing punctuation for TTS only
-        return rawWord.replace(/[.,?!:;—\-(){}"'"'…]+$/, '').trim() || rawWord;
+        return result.replace(/[.,?!:;—\-(){}"'"'…]+$/, '').trim() || result;
       }
       // Expand trailing/leading punctuation into spoken words
-      let result = rawWord;
       // Replace commas and full stops with their spoken form, leaving other punctuation for natural TTS pauses
       result = result.replace(/[.,]/g, ch => {
         return PUNCT_MAP[ch] ? ' ' + PUNCT_MAP[ch] + ' ' : ' ';
       });
-      return result.trim().replace(/\s+/g, ' ') || rawWord;
+      return result.trim().replace(/\s+/g, ' ') || result;
     }
 
     // ── BUILD SPOKEN TEXT FOR A CHUNK ────────────────────────────────────────────
@@ -396,7 +398,7 @@
         if (sayPunctuation && tokens[chunks[chunkIdx][0]].paraBreakBefore) {
           setStatus('playing', 'New paragraph…');
           await speak("New paragraph.", rate, pitch);
-          await sleep(2000);
+          await sleep(1000);
           setStatus('playing', 'Dictating chunk ' + (chunkIdx + 1) + '…');
         }
 
