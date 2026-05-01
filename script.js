@@ -174,8 +174,10 @@
         let i = 0;
         while (i < tokens.length) {
           const group = [];
-          for (let j = 0; j < chunkSize && i < tokens.length; j++, i++) {
+          for (let j = 0; j < chunkSize && i < tokens.length; j++) {
+            if (j > 0 && tokens[i].paraBreakBefore) break;
             group.push(i);
+            i++;
           }
           const cIdx = chunks.length;
           group.forEach(ti => tokens[ti].chunkIdx = cIdx);
@@ -389,6 +391,14 @@
         updateProgress(chunkIdx);
         highlightChunk(chunkIdx, false);
         setStatus('playing', 'Dictating chunk ' + (chunkIdx + 1) + '…');
+        
+        // Paragraph announcement
+        if (sayPunctuation && tokens[chunks[chunkIdx][0]].paraBreakBefore) {
+          setStatus('playing', 'New paragraph…');
+          await speak("New paragraph.", rate, pitch);
+          await sleep(2000);
+          setStatus('playing', 'Dictating chunk ' + (chunkIdx + 1) + '…');
+        }
 
         const chunkText = chunkToSpeech(chunks[chunkIdx]);
 
