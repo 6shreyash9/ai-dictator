@@ -149,8 +149,8 @@
       chunks = [];
       wordEls = [];
 
-      // Split into paragraphs (one or more blank lines)
-      const paras = rawText.split(/\n\s*\n+/);
+      // Split into paragraphs (treating each line as a potential break for points)
+      const paras = rawText.split(/\r?\n/);
       let globalIdx = 0;
 
       paras.forEach((para, pIdx) => {
@@ -398,7 +398,7 @@
         if (sayPunctuation && tokens[chunks[chunkIdx][0]].paraBreakBefore) {
           setStatus('playing', 'New paragraph…');
           await speak("New paragraph.", rate, pitch);
-          await sleep(1000);
+          await sleep(700);
           setStatus('playing', 'Dictating chunk ' + (chunkIdx + 1) + '…');
         }
 
