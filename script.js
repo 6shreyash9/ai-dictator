@@ -1,20 +1,7 @@
     // ── PUNCTUATION MAP ──────────────────────────────────────────────────────────
     const PUNCT_MAP = {
-      '.': 'full stop',
-      ',': 'comma',
-      '?': 'question mark',
-      '!': 'exclamation mark',
-      ':': 'colon',
-      ';': 'semicolon',
-      '-': 'dash',
-      '—': 'dash',
-      '(': 'open bracket',
-      ')': 'close bracket',
-      '"': 'quote',
-      '"': 'quote',
-      '"': 'quote',
-      "'": 'apostrophe',
-      '…': 'ellipsis',
+      '.': 'full stop.',
+      ',': 'comma.',
     };
 
     // ── CORE STATE ───────────────────────────────────────────────────────────────
@@ -140,11 +127,8 @@
       }
       // Expand trailing/leading punctuation into spoken words
       let result = rawWord;
-      // Handle ellipsis first
-      result = result.replace(/…/g, ' ellipsis ');
-      result = result.replace(/\.\.\./g, ' ellipsis ');
-      // Replace each punctuation char with its spoken form
-      result = result.replace(/[.,?!:;—\-()"'"']/g, ch => {
+      // Replace commas and full stops with their spoken form, leaving other punctuation for natural TTS pauses
+      result = result.replace(/[.,]/g, ch => {
         return PUNCT_MAP[ch] ? ' ' + PUNCT_MAP[ch] + ' ' : ' ';
       });
       return result.trim().replace(/\s+/g, ' ') || rawWord;
